@@ -1,0 +1,62 @@
+{
+  "name": "mently-boilerplate",
+  "version": "1.0.0",
+  "description": "MENTLy Mongo Express Node Tested Login. A boilerplate application for building a RESTful APIs in Node.js using express.",
+  "main": "bin/index.js",
+  "bin": {
+    "MENTL-Boilerplate": "index.js"
+  },
+  "scripts": {
+    "dev": "env-cmd -f ./.config/dev.env node bin/index.js",
+    "test": "env-cmd -f ./.config/test.env ./node_modules/mocha/bin/mocha tests --recursive  --exit"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dune44/CENTLy-Boilerplate.git"
+  },
+  "keywords": [
+    "mongo",
+    "express",
+    "jsonwebtoken",
+    "jwt",
+    "api",
+    "mocha",
+    "chai",
+    "boilerplate",
+    "template"
+  ],
+  "author": "Richard Silence",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/dune44/MENTLy-Boilerplate/issues"
+  },
+  "homepage": "https://github.com/dune44/MENTLy-Boilerplate#readme",
+  "dependencies": {
+    "bcryptjs": "2.4.3",
+    "body-parser": "1.19.0",
+    "express": "4.17.1",
+    "express-rate-limit": "^5.1.1",
+    "helmet": "^3.22.0",
+    "jsonwebtoken": "8.5.1",
+    "moment": "2.24.0",
+    "moment-json-parser": "^0.9.1",
+    "mongodb": "^3.5.6",
+    "mongoose": "^5.9.9",
+    "nodemailer": "^6.4.6",
+    "qrcode": "1.4.4",
+    "speakeasy": "2.0.0",
+    "uuid": "7.0.3",
+    "validator": "13.0.0"
+  },
+  "devDependencies": {
+    "chai": "4.2.0",
+    "chai-http": "^4.3.0",
+    "chai-totp": "^1.0.1",
+    "dirty-chai": "^2.0.1",
+    "env-cmd": "10.1.0",
+    "istanbul": "^0.4.5",
+    "mocha": "7.1.1",
+    "otplib": "^12.0.1",
+    "supertest": "4.0.2"
+  }
+}
