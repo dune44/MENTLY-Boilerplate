@@ -6,7 +6,7 @@ const bodyParser = require( 'body-parser' );
 
 const app = express();
 
-mongoose.connect( process.env.Mongo_URL + process.env.BUCKET );
+mongoose.connect( process.env.MONGO_URL + process.env.COLLECTION );
 
 app.set( 'x-powered-by',false );
 app.use( bodyParser.json() );
@@ -21,9 +21,9 @@ const limit = rateLimit({
     windowMs: 60 * 60 * 1000, // 1 Hour
     message: 'Too many requests' // message to send
 });
-app.use('/', limit); // Setting limiter on specific route
+app.use( '/', limit ); // Setting limiter on specific route
 
 // Pull in routes
-require('./router')(app);
+require( './router' )( app );
 
 module.exports = app;

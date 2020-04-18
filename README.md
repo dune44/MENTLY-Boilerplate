@@ -1,5 +1,5 @@
-# CENTLY-Boilerplate
-CENTLy Couchbase Express Node Tested Login. A boilerplate application for building RESTful APIs in Node.js using couchbase, express and Osom.
+# MENTLY-Boilerplate
+MENTLy Mongo Express Node Tested Login. A boilerplate application for building RESTful APIs in Node.js using Mongo, express.
 
 ## TOC
 1. Installation
@@ -13,7 +13,7 @@ Clone or Download
 ## Preparation
 
 For dev Testing:
-Create a .config folder to store ENV files, I have set this up to take dev.env and test.env repectively.
+Create a .config folder to store ENV files, I have set this up to take dev.env and test.env respectively.
 
 For Production:
 Make sure your server is setup with the necessary ENV vars.
@@ -22,10 +22,10 @@ Make sure your server is setup with the necessary ENV vars.
 
 * PORT            ( port for dev/testing server )
 * ADDRESS         ( your machine ip or put localhost )
-* COUCHBASE_URL   ( address to your couchbase test db server )
+* MONGO_URL   ( address to your couchbase test db server )
 * DB_USERNAME     ( Couchbase account with permission to you DB )
 * DB_PASSWORD     ( Couchbase account password )
-* BUCKET          ( this should be different buckets based on dev or test scenario )
+* COLLECTION          ( this should be different buckets based on dev or test scenario )
 * JWT_SECRET      ( this can be any secret, just don't tell anyone )
 * NODE_ENV        ( set to dev or test respectively )
 Email Variables
