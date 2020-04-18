@@ -1,56 +1,22 @@
-const async = require('wrap-sync');
-const osom = require('osom');
-const { v4: uuidv4 } = require('uuid');
+const bcrypt = require( 'bcryptjs' );
+const moment = require( 'moment' );
+const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
 
-/*
-    Model for User login
-    I have put secret as a placeholder for possible future security feature.
-    enable2a qruri for Qr code URI 2 stage authentication
-*/
-const trim = ( str ) => str.trim();
-const tlc = ( str ) => str.toLowerCase();
-const validateUsername = ( value ) => ( value.length > 2 );
-const validatePassword = ( value ) => ( value.length > 30 );
-
-const accountSchema = {
-    _id: {
-      default: uuidv4(),
-      required: true,
-      type: String
-    },
-    _type: {
-      default: 'account',
-      required: true,
-      type: String
-    },
+const accountSchema = new Schema({
     username: {
       required: true,
-      transform: [trim],
-      validate: validateUsername,
-      type: String
+      type: String,
+      unique: true
     },
     password: {
       required: true,
-      transform: [trim],
       validate: validatePassword,
       type: String
     },
     email: {
       required: true,
-      transform: [tlc,trim],
       type: String
-    },
-    enable2a: {
-      type: Boolean
-    },
-    secret: {
-      type: String
-    },
-    qrUri:{
-      type: String
-    },
-    roles: {
-      type: Array
     },
     blocked: {
       default: false,
@@ -60,51 +26,62 @@ const accountSchema = {
       default: false,
       type: Boolean
     },
-    token: {
-      type: Array
+    recovery: {
+      phrase: String,
+      proved: Boolean
     },
-    date: {
-      type: Object
-    },
-    recoveryPhrase: {
-      type: String
-    },
-    recoveryPhraseProved: {
-      type: Boolean
-    }
-};
-
-const dateSchema = {
-    origin: {
+    roles: Array,
+    secret: String,
+    timestamp: {
+      origin: {
+        default: moment().format( 'YYYY-MM-DD HH' ),
         type: Date
+      },
+      updated: {
+        default: moment().format( 'YYYY-MM-DD HH' ),
+        type: Date
+      }
     },
-    updated: {
-        type: Date,
-        default: Date.now
+    twoAuth:{
+      enabled: Boolean,
+      qrUri: String
     }
+});
+
+accountSchema.methods.verifyPassword = function( password, next ) {
+  bcrypt.compare( password, this.password, ( e, isMatch) => {
+    if (e) return next( e );
+    else return next ( null, isMatch );
+  });
 };
 
-// User IP addresses upon login, to be added to the token object.
-const ipsSchema = {
-    ip:{
-        type: String
-    },
-    fwdip: {
-        type: String
-    }
+accountSchema.pre('save', function( next ) {
+  let user = this;
+  if ( !user.isModified( 'password' ) ) return next();
+
+  if ( user.isModified( 'username' ) ) user.username = user.username.trim();
+  else if ( user.isModified( 'username' ) && !validate.username( user.username ) ) return next();
+
+  if( user.isModified( 'email' ) ) user.email = user.email.trim();
+  
+  if ( validate.password( this.password ) ) {
+    bcrypt.genSalt( 5, ( error, salt ) => {
+      if ( error ) return next( error );
+      bcrypt.hash(user.password, salt, null, ( e, hash ) => {
+        if (e) return next( e );
+        else {
+          user.password = hash;
+          return next();
+        }
+      });
+    });
+  }
+});
+
+
+const validate = {
+  username: ( value ) => ( value.length > 2 ),
+  password: ( value ) => ( value.length > 30 )
 };
 
-// JWT token store, this will be an array in the database.
-const tokenSchema = {
-    token: {
-        required: true,
-        type: String
-    }
-};
-const methods = {
-    account: (value) => osom(accountSchema)(value),
-    date: (value) => osom(dateSchema)(value),
-    ips: (value) => osom(ipsSchema)(value),
-    token: (value) => osom(tokenSchema)(value)
-};
-module.exports = methods;
+module.exports = mongoose.model( "account", accountSchema );

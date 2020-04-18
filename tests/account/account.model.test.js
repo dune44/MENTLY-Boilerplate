@@ -1,13 +1,14 @@
-const accountModel = require('../../controllers/account.model');
-const chai = require('chai');
-const couchbase = require('couchbase');
-const db = require('./../../controllers/db');
-const dirtyChai = require('dirty-chai');
-const { authenticator } = require('otplib');
+// const couchbase = require( 'couchbase' );
+// const db = require( './../../controllers/db' );
+// const N1qlQuery = couchbase.N1qlQuery;
+const accountSchema = require( './../../schema/account.schema' );
+const accountModel = require( './../../controllers/account.controller' );
+const chai = require( 'chai' );
+const dirtyChai = require( 'dirty-chai' );
+const { authenticator } = require( 'otplib' );
 const expect = chai.expect;
-const N1qlQuery = couchbase.N1qlQuery;
-const roles = require('./../../config/roles');
-const { v4: uuidv4 } = require('uuid');
+const roles = require( './../../config/roles' );
+const { v4: uuidv4 } = require( 'uuid' );
 chai.use(dirtyChai);
 
 /*
@@ -129,65 +130,20 @@ const testUser2Obj = {
 describe( 'Account Model Create a user account', () => {
 
   function clearAccounts( next ){
-      const q = N1qlQuery.fromString( 'DELETE FROM `'+process.env.BUCKET+'`' );
-      db.query( q, function( e ) {
-          if(e){
-              console.log( 'error in deleting test db' );
-              console.log( e );
-          }else{
-              // console.log( 'meta from deleting.' );
-              // console.log( m );
-              //console.log( 'count from deleting.' );
-              //console.log( m.metrics.mutationCount );
-              //console.log( 'test db cleared ' );
-          }
-          //console.log( 'end testing statement.' );
-          setTimeout(next, 200);
-      });
-  }
-
-  function indexAvailable(next){
-      //console.log('testing test indexes.');
-      const q1 = N1qlQuery.fromString('SELECT * FROM `'+process.env.BUCKET+'` WHERE `username` = "username" ');
-      db.query(q1, function( e, r, m) {
-          if(e){
-              //console.log('index query failed');
-              // console.log('query used:');
-              // console.log(q1);
-              // console.log();
-              // console.log('error');
-              // console.log(e);
-              next( false );
-          } else {
-              next( true );
-          }
-      });
-  }
-
-  function buildPrimaryIndex( next ) {
-      const testPKaccount = N1qlQuery.fromString('CREATE PRIMARY INDEX ON `'+process.env.BUCKET+'`');
-      db.query(testPKaccount, function(e) {
-          if(e) {
-              //console.log('testPKaccount failed.');
-              //console.log(e);
-          } else {
-              //console.log('testPKaccount should be added.');
-          }
-          next();
-      });
-  }
-
-  function buildIndexes( next ) {
-      const testFKaccount_username =  N1qlQuery.fromString( 'CREATE INDEX testFKaccount_username ON `'+process.env.BUCKET+'`(username) where `_type` == account' );
-      db.query(testFKaccount_username, function( e ) {
-          //if( e ) {
-              //console.log( 'testFKaccount_username failed.' );
-              //console.log( e );
-          //} else {
-              //console.log( 'testFKaccount_username should be added.' );
-          //}
-          next();
-      });
+    accountSchema.remove( {}, e => {
+      if ( e ) {
+        console.log( 'error in deleting test db' );
+        console.log( e );
+      } else {
+        // console.log( 'meta from deleting.' );
+        // console.log( m );
+        //console.log( 'count from deleting.' );
+        //console.log( m.metrics.mutationCount );
+        //console.log( 'test db cleared ' );
+      }
+      //console.log( 'end testing statement.' );
+      setTimeout( next, 200 );
+    });
   }
 
   function runDbCalls( next ){
@@ -244,26 +200,12 @@ describe( 'Account Model Create a user account', () => {
   }
 
   before( ( done ) => {
-    //console.log( 'Start before statement' );
-    clearAccounts( () => {
-      indexAvailable( ( result ) => {
-        if ( !result ) {
-          //console.log( 'build indexes' );
-          buildPrimaryIndex( () => {
-            buildIndexes( () => {
-              runDbCalls( done );
-            });
-          });
-        } else {
-          //console.log( 'Indexes built, proceed.' );
-          runDbCalls( done );
-        }
-      });
-    });
+    runDbCalls( done );
   });
 
-  after( ( done ) => {
-    setTimeout( done, 200);
+  after( done => {
+    // setTimeout( done, 200);
+    done();
   });
 
   describe( 'Proper Account Creation', () => {
@@ -399,7 +341,7 @@ describe( 'Account Model Create a user account', () => {
   });
 
 });
-
+/*
 describe( 'Account Model Create a duplicate username in account', () => {
 
   let newBadDuplicateNameAccount;
@@ -934,7 +876,7 @@ describe( 'Account Model Read Validate Credentials', () => {
     }
 
     before( ( done ) => {
-        attemptBadPasswordLogin( done )
+        attemptBadPasswordLogin( done );
     });
 
     after( done => done() );
@@ -1676,7 +1618,7 @@ describe( 'Update email', () => {
 
   describe( 'Update with a bad email', () => {
     let update_bad_email_Result;
-    const email = "bob@somesitecom";
+    const email = "bob@SomeSiteCom";
 
     function updateAccount( next ) {
       accountModel.Update.email( testAccountUID, email, ( result ) => {
@@ -1906,7 +1848,7 @@ describe( 'generate a QRcode and secret for 2a', () => {
     let qrcodeResult;
 
     function getSecret( next ) {
-      generatedSecret = accountModel.Update.generateQRcode( badUID, ( result ) => {
+      generatedSecret = accountModel.Update.generateQRCode( badUID, ( result ) => {
         qrcodeResult = result;
         next();
       });
@@ -1958,7 +1900,7 @@ describe( 'generate a QRcode and secret for 2a', () => {
     let qrcodeResult;
 
     function getSecret( next ) {
-      generatedSecret = accountModel.Update.generateQRcode( testAccountUID, ( result ) => {
+      generatedSecret = accountModel.Update.generateQRCode( testAccountUID, ( result ) => {
         qrcodeResult = result;
         testAccount1_2ASecret = result.secret.base32;
         next();
@@ -2245,13 +2187,13 @@ describe( 'Update twoStep', () => {
 
     let noConfirm_twoStepResult;
     const twoA = true;
-    const token = 000000;
+    const token = '000000';
 
     function updateTwoA( next ) {
       accountModel.Update.twoStep( testAccount2UID, token, twoA, ( result ) => {
         noConfirm_twoStepResult = result;
         next();
-      })
+      });
     }
 
     before( ( done ) => {
@@ -2354,7 +2296,7 @@ describe( 'Update twoStep', () => {
       accountModel.Update.twoStep( badUID, token, twoA, ( result ) => {
         badID_twoStepResult = result;
         next();
-      })
+      });
     }
 
     before( ( done ) => {
@@ -2459,7 +2401,7 @@ describe( 'Login with 2A', () => {
     let bad2A_LoginResult;
 
     function no2A_Login( next ) {
-      accountModel.Read.validateAccount( username, passwordUpdated, fauxIPS, 000000, ( result ) => {
+      accountModel.Read.validateAccount( username, passwordUpdated, fauxIPS, '000000', ( result ) => {
         bad2A_LoginResult =result;
         next();
       });
@@ -2508,14 +2450,14 @@ describe( 'Login with 2A', () => {
 
   });
 
-  describe( 'Login with Unecessary 2A code.', () => {
+  describe( 'Login with Unnecessary 2A code.', () => {
 
-    let unecessary2A_LoginResult;
+    let unnecessary2A_LoginResult;
 
     function no2A_Login( next ) {
 
-      accountModel.Read.validateAccount( username2, password2, fauxIPS, 000000, ( result ) => {
-        unecessary2A_LoginResult = result;
+      accountModel.Read.validateAccount( username2, password2, fauxIPS, '000000', ( result ) => {
+        unnecessary2A_LoginResult = result;
         next();
       });
     }
@@ -2527,34 +2469,34 @@ describe( 'Login with 2A', () => {
     after( done => done() );
 
     // Property Exists
-    it( 'unecessary2A_LoginResult should NOT have property msg', () => {
-      expect( unecessary2A_LoginResult ).to.not.have.property( 'msg' );
+    it( 'unnecessary2A_LoginResult should NOT have property msg', () => {
+      expect( unnecessary2A_LoginResult ).to.not.have.property( 'msg' );
     });
 
-    it( 'unecessary2A_LoginResult should NOT have property data', () => {
-      expect( unecessary2A_LoginResult ).to.not.have.property( 'data' );
+    it( 'unnecessary2A_LoginResult should NOT have property data', () => {
+      expect( unnecessary2A_LoginResult ).to.not.have.property( 'data' );
     });
 
-    it( 'unecessary2A_LoginResult should have property result', () => {
-      expect( unecessary2A_LoginResult ).to.have.property( 'result' );
+    it( 'unnecessary2A_LoginResult should have property result', () => {
+      expect( unnecessary2A_LoginResult ).to.have.property( 'result' );
     });
 
-    it( 'unecessary2A_LoginResult should have property token', () => {
-      expect( unecessary2A_LoginResult ).to.have.property( 'token' );
+    it( 'unnecessary2A_LoginResult should have property token', () => {
+      expect( unnecessary2A_LoginResult ).to.have.property( 'token' );
     });
 
     // Property Type
-    it( 'unecessary2A_LoginResult result should be a boolean', () => {
-      expect( unecessary2A_LoginResult.result ).to.be.a( 'boolean' );
+    it( 'unnecessary2A_LoginResult result should be a boolean', () => {
+      expect( unnecessary2A_LoginResult.result ).to.be.a( 'boolean' );
     });
 
-    it( 'unecessary2A_LoginResult token should be a string', () => {
-      expect( unecessary2A_LoginResult.token ).to.be.a( 'string' );
+    it( 'unnecessary2A_LoginResult token should be a string', () => {
+      expect( unnecessary2A_LoginResult.token ).to.be.a( 'string' );
     });
 
     // Return Value
-    it( 'unecessary2A_LoginResult result should have value of true', () => {
-      expect( unecessary2A_LoginResult.result ).to.equal( true );
+    it( 'unnecessary2A_LoginResult result should have value of true', () => {
+      expect( unnecessary2A_LoginResult.result ).to.equal( true );
     });
 
   });
@@ -2980,12 +2922,12 @@ describe('Delete account', () => {
 
     });
 
-    describe( 'Update generateQRcode', () => {
+    describe( 'Update generateQRCode', () => {
 
       let generateQRResult;
 
       function getSecret( next ) {
-        generatedSecret = accountModel.Update.generateQRcode( testAccountUID, ( result ) => {
+        generatedSecret = accountModel.Update.generateQRCode( testAccountUID, ( result ) => {
           generateQRResult = result;
           next();
         });
@@ -3144,7 +3086,7 @@ describe('Delete account', () => {
         accountModel.Update.twoStep( testAccountUID, token, twoA, ( result ) => {
           deleteAccount_twoStepResult = result;
           next();
-        })
+        });
       }
 
       before( ( done ) => {
@@ -3380,3 +3322,5 @@ describe( 'Forgot password.', () => {
   });
 
 });
+
+*/
