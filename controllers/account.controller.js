@@ -1,3 +1,4 @@
+const h = require( './helper.controller' );
 const accountSchema = require('./../schema/account.schema');
 const jwt = require( 'jsonwebtoken' );
 const moment = require( 'moment' );
@@ -9,10 +10,7 @@ const validator = require( 'validator' );
 const file = "account.controller";
 
 const errMsg = require( './account.errMsg' );
-const fields = '_id, _type, `blocked`, `deleted`, `email`, `username`';
-// Test to make sure newer couchbase have flushed api.
-//const collection = db.collection(process.env.BUCKET);
-// console.log(N1qlQuery);
+const fields = '_id blocked deleted email username';
 
 // TODO: Add undelete account fn
 // TODO: ADD Regex to validatePassword
@@ -22,116 +20,92 @@ const fields = '_id, _type, `blocked`, `deleted`, `email`, `username`';
 const accountModel = {
     Create: {
       account: ( account, next ) => {
-            if( !accountMethod.disallowedName( account.username ) ) {
-                accountMethod.duplicateName( account.username, ( duplicate ) => {
-                    if( !duplicate ) {
-                        accountMethod.ink(account.password, ( hash, inkMsg ) => {
-                            if( hash ) {
-                                const validModel = accountMethod.preValidateModel( account );
-                                if( validModel.result ) {
-                                    account = validModel.account;
-                                    account.password = hash;
-                                    db.insert('account|'+account._id,account, function( e, r ) {
-                                        if(e){
-                                            console.log( 'Error: inserting account' );
-                                            console.log( e );
-                                            next({ "msg": "An error occurred. Account not created.", "error": e, "result": false });
-                                        } else {
-                                            next({ "data": account, "result": true });
-                                        }
-                                    });
-                                } else {
-                                    next({ "msg": validModel.msg, "result": false});
-                                }
-                            } else {
-                                next({ "msg": inkMsg, "result": false });
-                            }
-
-                        });
-                    }else{
-                        const msg = 'Username already in use.';
-                        next({ "msg": msg, "result": false });
+        if( !accountMethod.disallowedName( account.username ) ) {
+          const data = new accountSchema( account );
+          try{
+            data.save( ( e, r ) => {
+              if ( e ) {
+                if( e.code === 11000) {
+                  next({ "msg": errMsg.usernameDuplicate, "success": false });
+                } else {
+                  let msg = 'error occurred.';
+                  if( e && e.errors ) {
+                    if ( e.errors ) {
+                      if ( e.errors.email ) msg = errMsg.emailInvalid;
+                      else if (e.errors.password ) msg = errMsg.passwordTooShort;
+                      else if ( e.errors.username ) msg = errMsg.usernameTooShort;
+                    } else {
+                      console.log( 'UNHANDLED ERROR.' );
+                      console.log( e );
                     }
-                });
-            }else{
-                const msg = 'Username is not allowed.';
-                next({ "msg": msg, "result": false });
-            }
+                  }
+                  next({ "success": false, "msg": msg, "error": e });
+                }
+              } else {
+                next({ "success": true, "data": r });
+              }
+            });
+          } catch ( error ) {
+            throw new Error( error );
+          }
+        }else{
+          const msg = 'Username is not allowed.';
+          next({ "msg": msg, "success": false });
         }
+      }
     },
     Read: {
       accountById: ( uid, next ) => {
         accountSchema.findById( uid, ( e, r ) => {
           if ( e ) {
-            console.log('error in accountModel.Read.accountById');
-            console.log(e);
-            next({ "msg": e, "result": false});
+            h.log( file + ' => error in accountModel.Read.accountById', e, next );
           } else {
               if ( r.length === 1 ) {
-                  next({ "data": r[0], "result": true });
+                  next({ "data": r[0], "success": true });
               } else if( r.length === 0 ) {
-                  next({ "msg": errMsg.accountNotFound, "result": false });
+                  next({ "msg": errMsg.accountNotFound, "success": false });
               } else {
-                  next({ "msg": 'Unexpected result', "result": false });
+                  next({ "msg": 'Unexpected result', "success": false });
               }
           }
         });
       },
       accountByUsername: ( username, next ) => {
-        accountSchema.find( { username }, ( e, r ) => {
+        accountSchema.find( { "username": username }, fields, ( e, r ) => {
           if ( e ) {
-            console.log('error in accountModel.Read.accountById');
-            console.log(e);
-            next({ "msg": e, "result": false});
+            h.log( file + ' => accountModel.Read.accountById', e);
+            return e;
           } else {
-              if ( r.length === 1 ) {
-                  next({ "data": r[0], "result": true });
-              } else if( r.length === 0 ) {
-                  next({ "msg": errMsg.accountNotFound, "result": false });
-              } else {
-                  next({ "msg": 'Unexpected result', "result": false });
+            if( r && r.length === 1 && h.isVal( r[0] ) ) {
+              const result = {
+                "_id": r[0]._id,
+                "blocked": r[0].blocked,
+                "deleted": r[0].deleted,
+                "email": r[0].email,
+                "username": r[0].username
               }
+              next({ "success": true, "data": result });
+            }
+            else next({ "success": false, "msg": errMsg.accountNotFound });
           }
         });
-            const q = N1qlQuery.fromString('SELECT '+fields+' FROM `' + process.env.BUCKET +
-            '` WHERE _type == "account" AND `username` == "' + username + '" AND `deleted` == false ');
-            db.query(q, function(e, r) {
-                if(e){
-                    console.log('error in accountModel.Read.accountByUsername');
-                    console.log(e);
-                    next({ "error": e, "msg": 'An error occurred', "result": false });
-                }else{
-                    if ( r.length === 1 ) {
-                        next({ "data": r[0], "result": true });
-                    } else if (r.length === 0) {
-                        // const msg = 'Result not found for ' + username;
-                        next({ "msg": errMsg.accountNotFound, "result": false });
-                    } else {
-                        const msg = 'There is a duplicate found for ' + username;
-                        next({ "msg": msg, "result": false });
-                    }
-
-                }
-            });
-        },
+      },
       all: ( next ) => {
-          const q = N1qlQuery.fromString('SELECT '+fields+' FROM `' + process.env.BUCKET +
-          '` WHERE _type == "account" AND `deleted` == false ');
-          db.query(q, function(e, r) {
-              if(e){
-                  console.log('error in accountModel.Read.all');
-                  console.log(e);
-                  next({ "error": e, "msg": 'An error occurred', "result": false });
-              }else{
-                  if ( r.length > 0 ) {
-                      next({ "data": r, "result": true });
-                  } else {
-                      const msg = 'There are no results found ';
-                      next({ "msg": msg, "result": false });
-                  }
-              }
-          });
-        },
+        const q = N1qlQuery.fromString('SELECT '+fields+' FROM `' + process.env.BUCKET +
+        '` WHERE _type == "account" AND `deleted` == false ');
+        db.query(q, function(e, r) {
+          if (e) {
+            h.log( file + ' => accountModel.Read.all', e, next );
+          } else {
+            if ( r.length > 0 ) {
+              next({ "data": r, "success": true });
+            } else {
+              const msg = 'There are no results found ';
+              next({ "msg": msg, "success": false });
+            }
+          }
+        });
+      },
       passphrase: ( uid, next ) => {
           const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz`!@#$%^&*-_.';
           let phrase = '';
@@ -146,12 +120,12 @@ const accountModel = {
               if(e){
                 console.log('error in accountModel.Update.password');
                 console.log(e);
-                next({ "error": e, "msg": errMsg.errorMsg, "result": false });
+                next({ "error": e, "msg": errMsg.errorMsg, "success": false });
               }else{
                 if( m.status == 'success' && m.metrics.mutationCount == 1 )
                   next( phrase );
                 else
-                  next({ "msg": errMsg.updateGenericFail, "result": false });
+                  next({ "msg": errMsg.updateGenericFail, "success": false });
               }
             });
           });
@@ -163,15 +137,15 @@ const accountModel = {
                 if(e){
                     console.log('error in accountModel.Read.accountById');
                     console.log(e);
-                    next({ "msg": e, "result": false});
+                    next({ "msg": e, "success": false});
                 }else{
                     if( r.length === 1 ) {
                         const roles = ( r[0].roles ) ? r[0].roles : [] ;
-                        next({ "data": roles, "result": true });
+                        next({ "data": roles, "success": true });
                     } else if( r.length === 0 ) {
-                        next({ "msg": errMsg.accountNotFound, "result": false });
+                        next({ "msg": errMsg.accountNotFound, "success": false });
                     } else {
-                        next({ "msg": 'Unexpected result', "result": false });
+                        next({ "msg": 'Unexpected result', "success": false });
                     }
                 }
             });
@@ -184,21 +158,21 @@ const accountModel = {
                     if(e){
                         console.log('error in accountModel.Read.accountById');
                         console.log(e);
-                        next({ "msg": e, "result": false});
+                        next({ "msg": e, "success": false});
                     }else{
                         if( r.length === 1 ) {
                             const roles = ( r[0].roles ) ? r[0].roles : [] ;
                             const result = roles.includes(role);
                             next({ "result": result });
                         } else if( r.length === 0 ) {
-                            next({ "msg": errMsg.accountNotFound, "result": false });
+                            next({ "msg": errMsg.accountNotFound, "success": false });
                         } else {
-                            next({ "msg": 'Unexpected result', "result": false });
+                            next({ "msg": 'Unexpected result', "success": false });
                         }
                     }
                 });
             } else {
-                next({ "msg": errMsg.roleInvalid, "result": false });
+                next({ "msg": errMsg.roleInvalid, "success": false });
             }
         },
       validateAccount: ( username, password, ips, twoAToken, next ) => {
@@ -209,15 +183,15 @@ const accountModel = {
               accountMethod.passwordCompare( password, account.data.password, ( result ) => {
                 if( result ){
                   accountMethod.updateToken( account.data._id, ips, ( token ) => {
-                    next({ "result": result, "token": token });
+                    next({ "success": result, "token": token });
                   });
                 } else {
-                  next({ "msg": errMsg.accountValidationFailure, "result": false });
+                  next({ "msg": errMsg.accountValidationFailure, "success": false });
                 }
               });
             } else {
               console.log( 'enable2a ' + account.data.enable2a );
-              next({ "msg": errMsg.accountValidationFailure, "result": false });
+              next({ "msg": errMsg.accountValidationFailure, "success": false });
             }
           } else {
             next( account );
@@ -231,14 +205,14 @@ const accountModel = {
               console.log( e );
               console.log( );
               console.log( 'token passed: ' + token );
-              next({ "error": e, "msg": 'An error occurred', "result": false });
+              next({ "error": e, "msg": 'An error occurred', "success": false });
             } else if(moment().unix() > decoded.exp ){
               // time expired.
-              next({ result: false });
+              next({ "success": false });
             } else {
               // there is time left
               const timeLeft = moment.unix( decoded.exp ).fromNow();
-              next({ "result": true, "expiresIn": timeLeft });
+              next({ "success": true, "expiresIn": timeLeft });
             }
           });
         }
@@ -247,7 +221,7 @@ const accountModel = {
       email: ( uid, email, next ) => {
             if( email ) {
                 if( !accountMethod.validateEmail( email ) ) {
-                    next({ "msg": errMsg.emailInvalid, "result": false });
+                    next({ "msg": errMsg.emailInvalid, "success": false });
                 } else {
                     const q = N1qlQuery.fromString('UPDATE `' + process.env.BUCKET +
                     '` SET email = "' + email + '" WHERE _type == "account" AND _id == "' +
@@ -256,33 +230,33 @@ const accountModel = {
                         if(e){
                             console.log('error in accountModel.Update.email');
                             console.log(e);
-                            next({ "error": e, "msg": errMsg.errorMsg, "result": false });
+                            next({ "error": e, "msg": errMsg.errorMsg, "success": false });
                         }else{
                             if( m.status == 'success' && m.metrics.mutationCount == 1 )
-                                next({ "result": true });
+                                next({ "success": true });
                             else {
                                 if( r.length === 0 ) {
-                                    next({ "msg": errMsg.accountNotFound, "result": false });
+                                    next({ "msg": errMsg.accountNotFound, "success": false });
                                 } else {
-                                    next({ "msg": errMsg.updateGenericFail, "result": false });
+                                    next({ "msg": errMsg.updateGenericFail, "success": false });
                                 }
                             }
                         }
                     });
                 }
             } else {
-                next({ "msg": 'Email cannot be blank', "result": false});
+                next({ "msg": 'Email cannot be blank', "success": false});
             }
         },
       generateQRCode: ( uid, next ) => {
           const secret = speakeasy.generateSecret();
           QRCode.toDataURL(secret.otpauth_url, function(e, data_url) {
             if( e ) {
-              next({ "error": e, "result": false });
+              h.log( file + ' => accountMethod.Update.generateQRCode', e, next );
             } else{
               accountMethod.saveQR( uid, secret.base32, ( result ) => {
-                if( result.result ) {
-                  next({ "secret": secret, "data_url": data_url, "result": true });
+                if( result.success ) {
+                  next({ "secret": secret, "data_url": data_url, "success": true });
                 } else {
                   next( result );
                 }
@@ -297,7 +271,7 @@ const accountModel = {
               if(e){
                   console.log('error in accountModel.Update.passphrase reading account.');
                   console.log(e);
-                  next({ "msg": e, "result": false});
+                  next({ "msg": e, "success": false});
               }else{
                   if( r.length === 1 ) {
                       accountMethod.passwordCompare( phrase, r[0].recoveryPhrase, ( result ) => {
@@ -309,27 +283,27 @@ const accountModel = {
                               if(e){
                                   console.log('error in accountModel.Update.passphraseProved');
                                   console.log(e);
-                                  next({ "error": e, "msg": errMsg.errorMsg, "result": false });
+                                  next({ "error": e, "msg": errMsg.errorMsg, "success": false });
                               }else{
                                   if( m.status == 'success' && m.metrics.mutationCount === 1 ) {
-                                      next({ "result": true });
+                                      next({ "success": true });
                                   } else {
                                       if( r.length === 0 ) {
-                                          next({ "msg": errMsg.accountNotFound, "result": false });
+                                          next({ "msg": errMsg.accountNotFound, "success": false });
                                       } else {
-                                          next({ "msg": errMsg.updateGenericFail, "result": false });
+                                          next({ "msg": errMsg.updateGenericFail, "success": false });
                                       }
                                   }
                               }
                           });
                         } else {
-                          next({ "msg": errMsg.accountValidationFailure, "result": false });
+                          next({ "msg": errMsg.accountValidationFailure, "success": false });
                         }
                       });
                   } else if( r.length === 0 ) {
-                    next({ "msg": errMsg.accountNotFound, "result": false });
+                    next({ "msg": errMsg.accountNotFound, "success": false });
                   } else {
-                    next({ "msg": 'Unexpected result', "result": false });
+                    next({ "msg": 'Unexpected result', "success": false });
                   }
               }
           });
@@ -337,7 +311,7 @@ const accountModel = {
       password: ( uid, oldPassword, newPassword, next ) => {
             if( accountMethod.validatePassword( newPassword ) ) {
                 accountMethod.getUserById( uid, false, ( account ) => {
-                    if( account.result ) {
+                    if( account.success ) {
                         accountMethod.passwordCompare( oldPassword, account.data.password, ( compareResult ) => {
                             if( compareResult ) {
                                 accountMethod.ink( newPassword, ( hash, inkMsg) => {
@@ -347,20 +321,20 @@ const accountModel = {
                                             if(e){
                                                 console.log('error in accountModel.Update.password');
                                                 console.log(e);
-                                                next({ "error": e, "msg": errMsg.errorMsg, "result": false });
+                                                next({ "error": e, "msg": errMsg.errorMsg, "success": false });
                                             }else{
                                                 if( m.status == 'success' && m.metrics.mutationCount == 1 )
-                                                    next({ "result": true });
+                                                    next({ "success": true });
                                                 else
-                                                    next({ "msg": errMsg.updateGenericFail, "result": false });
+                                                    next({ "msg": errMsg.updateGenericFail, "success": false });
                                             }
                                         });
                                     } else {
-                                        next({ "msg": inkMsg, "result": false });
+                                        next({ "msg": inkMsg, "success": false });
                                     }
                                 });
                             } else {
-                                next({ "msg": errMsg.accountValidationFailure, "result": false });
+                                next({ "msg": errMsg.accountValidationFailure, "success": false });
                             }
                         });
                     } else {
@@ -368,7 +342,7 @@ const accountModel = {
                     }
                 });
             } else {
-                next({ "msg": errMsg.passwordTooShort, "result": false });
+                next({ "msg": errMsg.passwordTooShort, "success": false });
             }
         },
       recoverAccount: ( username, recoveryPhrase, next ) => {
@@ -377,23 +351,23 @@ const accountModel = {
             if(e){
               console.log('error in accountMethod.recoverAccount');
               console.log(e);
-              next({ "error": e, "msg": errMsg.errorMsg, "result": false });
+              next({ "error": e, "msg": errMsg.errorMsg, "success": false });
             }else{
               if( r.length === 1){
                 accountMethod.passwordCompare( recoveryPhrase, r[0].recoveryPhrase, ( result ) => {
                   if( result ) {
                     accountMethod.update2a( r[0]._id, false, ( update2aResult ) => {
                       if( update2aResult.result )
-                        next({ "result": true });
+                        next({ "success": true });
                       else
-                        next({ "msg": errMsg.recoveryFailed, "result": false });
+                        next({ "msg": errMsg.recoveryFailed, "success": false });
                     });
                   } else {
-                    next({ "msg": errMsg.recoveryFailed, "result": false });
+                    next({ "msg": errMsg.recoveryFailed, "success": false });
                   }
                 });
               } else {
-                next({ "msg": errMsg.recoveryFailed, "result": false });
+                next({ "msg": errMsg.recoveryFailed, "success": false });
               }
             }
           });
@@ -401,7 +375,7 @@ const accountModel = {
       role: ( uid, role, next ) => {
             if( accountMethod.roleExists( role ) ) {
                 accountModel.Read.accountById( uid, ( acct ) => {
-                    if( acct.result ) {
+                    if( acct.success ) {
                         if( acct.data.roles ) acct.data.roles.push(role);
                         else acct.data.roles = [ role ];
 
@@ -412,26 +386,26 @@ const accountModel = {
                             if(e){
                                 console.log('error in accountModel.Update.role');
                                 console.log(e);
-                                next({ "error": e, "msg": errMsg.errorMsg, "result": false });
+                                next({ "error": e, "msg": errMsg.errorMsg, "success": false });
                             }else{
                                 if( m.status == 'success' && m.metrics.mutationCount == 1 )
-                                    next({ "result": true });
+                                    next({ "success": true });
                                 else
-                                    next({ "msg": 'Not a successful update.', "result": false });
+                                    next({ "msg": 'Not a successful update.', "success": false });
                             }
                         });
 
                     } else {
-                        next({ "msg": 'No such user.', "result": false });
+                        next({ "msg": 'No such user.', "success": false });
                     }
                 });
             } else {
-                next({ "msg": errMsg.roleInvalid, "result": false });
+                next({ "msg": errMsg.roleInvalid, "success": false });
             }
         },
       twoStep: ( uid, token, twoA, next ) => {
             accountMethod.getUserById( uid, false, ( account ) => {
-                if( account.result ){
+                if( account.success ){
                     if( account.data.recoveryPhraseProved ) {
                         if( account.data.enable2a != twoA && account.data.enable2a ) {
                           accountMethod.validate2a( account.data.secret, token, ( validated ) => {
@@ -440,7 +414,7 @@ const accountModel = {
                                 next( resultObj );
                               });
                             } else {
-                              next({ "msg": errMsg.accountValidationFailure, "result": false});
+                              next({ "msg": errMsg.accountValidationFailure, "success": false});
                             }
                           });
                         } else {
@@ -450,10 +424,10 @@ const accountModel = {
                         }
                       } else {
 
-                        next({ "msg": errMsg.recoveryPhraseNotProved, "result": false });
+                        next({ "msg": errMsg.recoveryPhraseNotProved, "success": false });
                       }
                 } else {
-                    next({ "msg": errMsg.accountNotFound, "result": false });
+                    next({ "msg": errMsg.accountNotFound, "success": false });
                 }
 
             });
@@ -462,19 +436,19 @@ const accountModel = {
     Delete: {
       accountSoftly: ( username, password, ips, twoAToken, next) => {
           accountModel.Read.validateAccount( username, password, ips, twoAToken, ( result ) => {
-            if( result.result ) {
+            if( result.success ) {
               const qU = N1qlQuery.fromString('UPDATE `' + process.env.BUCKET +
               '` SET deleted = true WHERE _type == "account" AND `username` == "' + username + '" ');
               db.query(qU, function(e, r, m) {
                 if(e){
                   console.log('error in accountModel.Delete.accountSoftly');
                   console.log(e);
-                  next({ "error": e, "msg": errMsg.errorMsg, "result": false });
+                  next({ "error": e, "msg": errMsg.errorMsg, "success": false });
                 }else{
                   if( m.status == 'success' && m.metrics.mutationCount === 1 ) {
-                    next({ "result": true });
+                    next({ "success": true });
                   } else {
-                    next({ "msg": errMsg.updateGenericFail, "result": false });
+                    next({ "msg": errMsg.updateGenericFail, "success": false });
                   }
                 }
               });
@@ -492,9 +466,10 @@ const accountModel = {
 };
 // Non Public Methods
 const accountMethod = {
+  fields: '_id _type blocked deleted email username enable2a password secret recoveryPhrase recoveryPhraseProved',
     duplicateName: ( username, next ) => {
       accountModel.Read.accountByUsername( username, ( r ) => {
-        next( r.result );
+        next( r.success );
       });
     },
     disallowedName: ( username ) => {
@@ -506,94 +481,107 @@ const accountMethod = {
         return ( nameList.indexOf( username ) > -1 );
     },
     getUserById: ( uid, allowDeleted, next ) => {
-      let query = 'SELECT ' + fields + ', `enable2a`, `password`, `secret`, `recoveryPhrase`, `recoveryPhraseProved` FROM `' + process.env.BUCKET + '` WHERE _type == "account" AND _id == "' + uid + '" ';
-      if( !allowDeleted ) query += ' AND `deleted` == false ';
-
-      const q = N1qlQuery.fromString(query);
-        db.query(q, function(e, r) {
-          if(e){
-            console.log('error in accountMethod.getUserById');
-            console.log(e);
-            next({ "error": e, "msg": errMsg.errorMsg, "result": false });
-          }else{
-            if( r.length === 1)
-              next({ "data": r[0], "result": true });
-            else if( r.length === 0 )
-              next({ "msg": errMsg.accountNotFound, "result": false });
-            else
-              next({ "msg": errMsg.errorMsg, "result": false });
-          }
-        });
+      let params = { _id: uid };
+      if( !allowDeleted ) params.deleted = false;
+      accountSchema.find( params, this.fields, ( e, r ) => {
+        if(e){
+          h.log( file + ' => accountMethod.getUserById', e, next );
+          next({ "error": e, "msg": errMsg.errorMsg, "success": false });
+        }else{
+          if( r.length === 1)
+            next({ "data": r[0], "success": true });
+          else if( r.length === 0 )
+            next({ "msg": errMsg.accountNotFound, "success": false });
+          else
+            next({ "msg": errMsg.errorMsg, "success": false });
+        }
+      });
+      // let query = 'SELECT ' + this.fields + ' FROM `' + process.env.BUCKET + '` WHERE _type == "account" AND _id == "' + uid + '" ';
+      // if( !allowDeleted ) query += ' AND `deleted` == false ';
     },
-    getAccountByUsername: ( username, allowDeleted, next ) => {
-      let query = 'SELECT ' + fields + ', `enable2a`, `password`, `secret`, `recoveryPhrase`, `recoveryPhraseProved` FROM `' + process.env.BUCKET + '` WHERE _type == "account" AND `username` == "' + username + '" ';
-      if( !allowDeleted ) query += ' AND `deleted` == false ';
+    getAccountByUsername: ( username, deleted, next ) => {
+      let params = { username, deleted };
+      accountSchema.find( params, this.fields, ( e, r ) => {
+        if(e){
+          h.log( file + ' => accountMethod.getAccountByUsername', e, next );
+          next({ "error": e, "msg": errMsg.errorMsg, "success": false });
+        }else{
+          if( r.length === 1)
+            next({ "data": r[0], "success": true });
+          else if( r.length === 0 )
+            next({ "msg": errMsg.accountNotFound, "success": false });
+          else
+            next({ "msg": errMsg.errorMsg, "success": false });
+        }
+      });
+      // let query = 'SELECT ' + fields + ', `enable2a`, `password`, `secret`, `recoveryPhrase`, `recoveryPhraseProved` FROM `' + process.env.BUCKET + '` WHERE _type == "account" AND `username` == "' + username + '" ';
+      // if( !allowDeleted ) query += ' AND `deleted` == false ';
 
-      const q = N1qlQuery.fromString(query);
-        db.query(q, function(e, r) {
-          if(e){
-            console.log('error in accountMethod.getUserById');
-            console.log(e);
-            next({ "error": e, "msg": errMsg.errorMsg, "result": false });
-          }else{
-            if( r.length === 1)
-              next({ "data": r[0], "result": true });
-            else if( r.length === 0 )
-              next({ "msg": errMsg.accountNotFound, "result": false });
-            else
-              next({ "msg": errMsg.errorMsg, "result": false });
-          }
-        });
+      // const q = N1qlQuery.fromString(query);
+      //   db.query(q, function(e, r) {
+      //     if(e){
+      //       console.log('error in accountMethod.getAccountByUsername');
+      //       console.log(e);
+      //       next({ "error": e, "msg": errMsg.errorMsg, "success": false });
+      //     }else{
+      //       if( r.length === 1)
+      //         next({ "data": r[0], "success": true });
+      //       else if( r.length === 0 )
+      //         next({ "msg": errMsg.accountNotFound, "success": false });
+      //       else
+      //         next({ "msg": errMsg.errorMsg, "success": false });
+      //     }
+      //   });
     },
     ink: ( password, next ) => {
-        bcrypt.genSalt( 5, function( e, salt ) {
-            if( e ) {
-                console.error( e );
-                next( false, e );
-            } else {
-                bcrypt.hash( password, salt, function( er, hash ) {
-                    if( er ) {
-                        console.error( er );
-                        next( false, er );
-                    }else{
-                        next( hash, null );
-                    }
-                });
-            }
-        });
+        // bcrypt.genSalt( 5, function( e, salt ) {
+        //     if( e ) {
+        //         console.error( e );
+        //         next( false, e );
+        //     } else {
+        //         bcrypt.hash( password, salt, function( er, hash ) {
+        //             if( er ) {
+        //                 console.error( er );
+        //                 next( false, er );
+        //             }else{
+        //                 next( hash, null );
+        //             }
+        //         });
+        //     }
+        // });
     },
     isVal: ( value ) => {
         return ( value && value !== null && value !== '' );
     },
     passwordCompare: ( pwd, hash, next ) => {
-      bcrypt.compare( pwd, hash, function( e, r ) {
-        if( e ) {
-          console.log(' Error accountMethod passwordCompare');
-          console.log( e );
-        } else {
-          next( r );
-        }
-      });
+      // bcrypt.compare( pwd, hash, function( e, r ) {
+      //   if( e ) {
+      //     console.log(' Error accountMethod passwordCompare');
+      //     console.log( e );
+      //   } else {
+      //     next( r );
+      //   }
+      // });
     },
     preValidateModel: ( account ) => {
-        let result = true, msg = '';
+        let success = true, msg = '';
         if( !accountMethod.validateEmail( account.email ) ) {
-            result = false;
-            msg = errMsg.emailInvalid;
+          success = false;
+          msg = errMsg.emailInvalid;
         }
         if( !accountMethod.validatePassword( account.password ) ) {
-            result = false;
-            msg += errMsg.passwordTooShort;
+          success = false;
+          msg += errMsg.passwordTooShort;
         }
         if( !accountMethod.validateUsername( account.username ) ) {
-            result = false;
-            msg += errMsg.usernameTooShort;
+          success = false;
+          msg += errMsg.usernameTooShort;
         }
         account._id = uuidv4();
         account._type = 'account';
         account.blocked = false;
         account.deleted = false;
-        return ({ result, msg, account });
+        return ({ success, msg, account });
     },
     roleExists: ( role ) => {
         return roles.includes(role);
@@ -605,12 +593,12 @@ const accountMethod = {
           if(e){
               console.log('error in accountMethod.saveQR');
               console.log(e);
-              next({ "error": e, "msg": errMsg.errorMsg, "result": false });
+              next({ "error": e, "msg": errMsg.errorMsg, "success": false });
           }else{
               if( m.status == 'success' && m.metrics.mutationCount == 1 )
-                  next({ "result": true });
+                  next({ "success": true });
               else
-                  next({ "msg": errMsg.updateGenericFail, "result": false });
+                  next({ "msg": errMsg.updateGenericFail, "success": false });
           }
       });
     },
@@ -621,12 +609,12 @@ const accountMethod = {
             if(e){
                 console.log('error in accountModel.accountMethod update2a.');
                 console.log(e);
-                next({ "error": e, "msg": errMsg.errorMsg, "result": false });
+                next({ "error": e, "msg": errMsg.errorMsg, "success": false });
             }else{
                 if( m.status === 'success' && m.metrics.mutationCount === 1 )
-                    next({ "result": true });
+                    next({ "success": true });
                 else
-                    next({ "msg": 'Not a successful update.', "result": false });
+                    next({ "msg": 'Not a successful update.', "success": false });
             }
         });
     },

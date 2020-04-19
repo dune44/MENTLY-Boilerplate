@@ -1,22 +1,35 @@
 const bcrypt = require( 'bcryptjs' );
+const errMsg = require( './../controllers/account.errMsg' );
 const moment = require( 'moment' );
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
+const legalize = require( 'validator' );
 
 const accountSchema = new Schema({
     username: {
       required: true,
       type: String,
-      unique: true
+      unique: true,
+      validate: {
+        validator: v => ( v.length > 3 ),
+        message: errMsg.usernameTooShort
+      }
     },
     password: {
       required: true,
-      validate: validatePassword,
-      type: String
+      type: String,
+      validate: {
+        validator: v => ( v.length > 3 ),
+        message: errMsg.passwordTooShort
+      }
     },
     email: {
       required: true,
-      type: String
+      type: String,
+      validate: {
+        validator: v => legalize.isEmail( v ),
+        message: errMsg.emailInvalid
+    }
     },
     blocked: {
       default: false,
@@ -35,11 +48,11 @@ const accountSchema = new Schema({
     timestamp: {
       origin: {
         default: moment().format( 'YYYY-MM-DD HH' ),
-        type: Date
+        type: String
       },
       updated: {
         default: moment().format( 'YYYY-MM-DD HH' ),
-        type: Date
+        type: String 
       }
     },
     twoAuth:{
@@ -55,33 +68,49 @@ accountSchema.methods.verifyPassword = function( password, next ) {
   });
 };
 
-accountSchema.pre('save', function( next ) {
+accountSchema.pre( 'save', function( next ) {
+
   let user = this;
-  if ( !user.isModified( 'password' ) ) return next();
 
   if ( user.isModified( 'username' ) ) user.username = user.username.trim();
-  else if ( user.isModified( 'username' ) && !validate.username( user.username ) ) return next();
-
-  if( user.isModified( 'email' ) ) user.email = user.email.trim();
   
-  if ( validate.password( this.password ) ) {
-    bcrypt.genSalt( 5, ( error, salt ) => {
-      if ( error ) return next( error );
-      bcrypt.hash(user.password, salt, null, ( e, hash ) => {
-        if (e) return next( e );
-        else {
-          user.password = hash;
-          return next();
-        }
-      });
-    });
+  if( user.isModified( 'email' ) ) user.email = user.email.trim().toLowerCase();
+
+  if ( user.isModified( 'password' ) ) {
+    private.ink( user.password, ( hash ) => {
+      user.password = hash;
+      // user.save();
+      return next();
+    }); 
+  } else {
+    return next();
   }
 });
 
+// accountSchema.pre( 'save', function( next ) {
+// });
 
-const validate = {
-  username: ( value ) => ( value.length > 2 ),
-  password: ( value ) => ( value.length > 30 )
+
+const private = {
+  ink: ( password, next ) => {
+    bcrypt.genSalt( 5, ( error, salt ) => {
+      if ( error ) {
+        console.log( 'error salting' );
+        console.log( error );
+        next( error );
+      } else {
+        bcrypt.hash( password, salt, ( e, hash ) => {
+          if ( e ) {
+            console.log( 'Error saving. ');
+            console.log( e );
+            next( e );
+          } else {
+            next( hash );
+          }
+        });
+      }
+    });
+  }
 };
 
-module.exports = mongoose.model( "account", accountSchema );
+module.exports = mongoose.model( 'account', accountSchema );

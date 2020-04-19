@@ -8,6 +8,7 @@ module.exports = {
     "recoveryFailed": 'Recovery Failed.',
     "roleInvalid": 'No such role.',
     "tokenInvalid": 'Invalid two step authentication.',
+    "usernameDuplicate": 'Username already in use.',
     "usernameTooShort": 'Username is too short.',
     "updateGenericFail": 'Failed to update account.',
 };

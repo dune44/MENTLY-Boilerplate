@@ -2,11 +2,11 @@ const express = require( 'express' );
 const helmet = require( 'helmet' );
 const rateLimit = require( 'express-rate-limit' );
 const bodyParser = require( 'body-parser' );
- const mongoose = require( 'mongoose' );
+const mongoose = require( 'mongoose' );
 
 const app = express();
-
-mongoose.connect( process.env.MONGO_URL + process.env.COLLECTION );
+const MongoUri = process.env.MONGO_URL + process.env.COLLECTION;
+mongoose.connect( MongoUri,  { useNewUrlParser: true, useUnifiedTopology: true } );
 
 app.set( 'x-powered-by',false );
 app.use( bodyParser.json() );

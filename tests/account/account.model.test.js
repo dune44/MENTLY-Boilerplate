@@ -1,6 +1,3 @@
-// const couchbase = require( 'couchbase' );
-// const db = require( './../../controllers/db' );
-// const N1qlQuery = couchbase.N1qlQuery;
 const accountSchema = require( './../../schema/account.schema' );
 const accountModel = require( './../../controllers/account.controller' );
 const chai = require( 'chai' );
@@ -130,7 +127,7 @@ const testUser2Obj = {
 describe( 'Account Model Create a user account', () => {
 
   function clearAccounts( next ){
-    accountSchema.remove( {}, e => {
+    accountSchema.deleteMany( {}, e => {
       if ( e ) {
         console.log( 'error in deleting test db' );
         console.log( e );
@@ -146,61 +143,72 @@ describe( 'Account Model Create a user account', () => {
     });
   }
 
-  function runDbCalls( next ){
+  const runDbCalls = next => {
+    try{
       initializeAccount( () => {
-          initializeBadPasswordAccount( () => {
-              initializeBadUsernameAccount( () => {
-                  initializeBadEmailAccount( next );
-              });
-          });
+        initializeBadPasswordAccount( () => {
+          initializeBadUsernameAccount( () => {
+            initializeBadEmailAccount( () => {
+              next();
+            });
+          });  
+        });
       });
-  }
+    } catch ( error ) {
+      throw new Error( error );
+    }
+  };
 
-  function initializeAccount( next ) {
-      accountModel.Create.account( testUserObj, ( goodResult ) => {
-          newAccount = goodResult;
-          next();
-      });
-  }
+  const initializeAccount = next => {
+    accountModel.Create.account( testUserObj, result => {
+      newAccount = result;
+      next();
+    });
 
-  function initializeBadPasswordAccount( next ) {
+  };
+
+  const initializeBadPasswordAccount = next => {
       const testUserObj = {
           "username": "testUser2",
-          "password":"1A2b6b",
+          "password":"1A2",
           "email": "dune44@hotmail.com",
       };
-      accountModel.Create.account(testUserObj, (badResult) => {
-          newBadPasswordAccount = badResult;
-          next();
+      accountModel.Create.account( testUserObj, result => {
+        newBadPasswordAccount = result;
+        next();
       });
-  }
+  };
 
-  function initializeBadUsernameAccount( next ){
+  const initializeBadUsernameAccount = next => {
       const testUserObj = {
           "username": "te",
           "password":"2M@iP931p",
           "email": "dune44@hotmail.com",
       };
-      accountModel.Create.account(testUserObj, (badResult) => {
-          newBadUsernameAccount = badResult;
-          next();
+      accountModel.Create.account( testUserObj, result => {
+        newBadUsernameAccount = result;
+        next();
       });
-  }
+  };
 
-  function initializeBadEmailAccount( next ){
+  const initializeBadEmailAccount = next => {
       const testUserObj = {
           "username": "testUser3",
           "password":"2M@iP931p",
           "email": "hotmail.com",
       };
-      accountModel.Create.account(testUserObj, (badResult) => {
-          newBadEmailAccount = badResult;
-          next();
+      accountModel.Create.account( testUserObj, result => {
+        newBadEmailAccount = result;
+        next();
       });
-  }
+  };
 
   before( ( done ) => {
-    runDbCalls( done );
+    clearAccounts( () => {
+      runDbCalls( () => {
+        done();
+      });
+    });
   });
 
   after( done => {
@@ -211,6 +219,10 @@ describe( 'Account Model Create a user account', () => {
   describe( 'Proper Account Creation', () => {
 
     // Property Existence
+    it( 'newAccount should NOT have property msg', () => {
+      expect( newAccount ).to.not.have.property( 'msg' );
+    });
+
     it( 'newAccount data should have property email', () => {
       expect( newAccount.data ).to.have.property( 'email' );
     });
@@ -219,8 +231,8 @@ describe( 'Account Model Create a user account', () => {
       expect( newAccount.data ).to.have.property( 'password' );
     });
 
-    it( 'newAccount should have property result', () => {
-      expect( newAccount ).to.have.property( 'result' );
+    it( 'newAccount should have property success', () => {
+      expect( newAccount ).to.have.property( 'success' );
     });
 
     it( 'newAccount should have property username', () => {
@@ -241,7 +253,11 @@ describe( 'Account Model Create a user account', () => {
     });
 
     it( 'newAccount username should be a string', () => {
-      expect(newAccount.data.username).to.be.a( 'string' );
+      expect( newAccount.data.username ).to.be.a( 'string' );
+    });
+
+    it( 'newAccount.success should be a boolean', () => {
+      expect( newAccount.success ).to.be.a( 'boolean' );
     });
 
     // Return Value
@@ -253,6 +269,10 @@ describe( 'Account Model Create a user account', () => {
       expect( newAccount.data.username ).to.have.lengthOf.at.least( 3 );
     });
 
+    it( 'newAccount.success should have a value of true', () => {
+      expect( newAccount.success ).to.equal( true );
+    });
+
   });
 
   describe( 'Account Created with Bad Password', () => {
@@ -262,13 +282,13 @@ describe( 'Account Model Create a user account', () => {
       expect( newBadPasswordAccount ).to.have.property( 'msg' );
     });
 
-    it( 'newBadPasswordAccount should have property result', () => {
-      expect( newBadPasswordAccount ).to.have.property( 'result' );
+    it( 'newBadPasswordAccount should have property success', () => {
+      expect( newBadPasswordAccount ).to.have.property( 'success' );
     });
 
     // Property Type
-    it( 'newBadPasswordAccount result should be a boolean', () => {
-      expect( newBadPasswordAccount.result ).to.have.be.a( 'boolean' );
+    it( 'newBadPasswordAccount success should be a boolean', () => {
+      expect( newBadPasswordAccount.success ).to.have.be.a( 'boolean' );
     });
 
     it( 'newBadPasswordAccount msg should be a string', () => {
@@ -276,8 +296,8 @@ describe( 'Account Model Create a user account', () => {
     });
 
     // Return Value
-    it( 'newBadPasswordAccount should have result of false', () => {
-      expect( newBadPasswordAccount.result ).to.equal( false );
+    it( 'newBadPasswordAccount should have success of false', () => {
+      expect( newBadPasswordAccount.success ).to.equal( false );
     });
 
   });
@@ -289,13 +309,13 @@ describe( 'Account Model Create a user account', () => {
       expect( newBadUsernameAccount ).to.have.property( 'msg' );
     });
 
-    it( 'newBadUsernameAccount  should have property result', () => {
-      expect( newBadUsernameAccount ).to.have.property( 'result' );
+    it( 'newBadUsernameAccount  should have property success', () => {
+      expect( newBadUsernameAccount ).to.have.property( 'success' );
     });
 
     // Property Type
-    it( 'newBadUsernameAccount result should be a boolean', () => {
-      expect( newBadUsernameAccount.result ).to.have.be.a( 'boolean' );
+    it( 'newBadUsernameAccount success should be a boolean', () => {
+      expect( newBadUsernameAccount.success ).to.have.be.a( 'boolean' );
     });
 
     it( 'newBadUsernameAccount msg should be a string', () => {
@@ -303,8 +323,8 @@ describe( 'Account Model Create a user account', () => {
     });
 
     // Return Value
-    it( 'newBadUsernameAccount should have result of false', () => {
-      expect( newBadUsernameAccount.result ).to.equal( false );
+    it( 'newBadUsernameAccount should have success of false', () => {
+      expect( newBadUsernameAccount.success ).to.equal( false );
     });
 
   });
@@ -316,13 +336,13 @@ describe( 'Account Model Create a user account', () => {
       expect( newBadEmailAccount ).to.have.property( 'msg' );
     });
 
-    it( 'newBadEmailAccount should have property result', () => {
-      expect( newBadEmailAccount ).to.have.property( 'result' );
+    it( 'newBadEmailAccount should have property success', () => {
+      expect( newBadEmailAccount ).to.have.property( 'success' );
     });
 
     // Property Type
-    it( 'newBadEmailAccount result should be a boolean', () => {
-      expect( newBadEmailAccount.result ).to.have.be.a( 'boolean' );
+    it( 'newBadEmailAccount success should be a boolean', () => {
+      expect( newBadEmailAccount.success ).to.have.be.a( 'boolean' );
     });
 
     it( 'newBadEmailAccount msg should be a string', () => {
@@ -334,24 +354,24 @@ describe( 'Account Model Create a user account', () => {
       expect( newBadEmailAccount.msg ).to.equal( errMsg.emailInvalid );
     });
 
-    it( 'newBadEmailAccount should have result of false', () => {
-      expect( newBadEmailAccount.result ).to.equal( false );
+    it( 'newBadEmailAccount should have success of false', () => {
+      expect( newBadEmailAccount.success ).to.equal( false );
     });
 
   });
 
 });
-/*
+
 describe( 'Account Model Create a duplicate username in account', () => {
 
   let newBadDuplicateNameAccount;
 
-  function attemptDuplicateUsername( next ) {
-    accountModel.Create.account(testUserObj, ( result ) => {
+  const attemptDuplicateUsername = ( next ) => {
+    accountModel.Create.account( testUserObj, ( result ) => {
       newBadDuplicateNameAccount = result;
       next();
     });
-  }
+  };
 
   before( ( done ) => {
     attemptDuplicateUsername( done );
@@ -362,8 +382,8 @@ describe( 'Account Model Create a duplicate username in account', () => {
   });
 
   // Property Existence
-  it( 'newBadDuplicateNameAccount should have property result', () => {
-    expect(newBadDuplicateNameAccount).to.have.property('result');
+  it( 'newBadDuplicateNameAccount should have property success', () => {
+    expect(newBadDuplicateNameAccount).to.have.property('success');
   });
 
   it( 'newBadDuplicateNameAccount should have property msg', () => {
@@ -371,8 +391,8 @@ describe( 'Account Model Create a duplicate username in account', () => {
   });
 
   // Property Type
-  it( 'newBadDuplicateNameAccount result should be a boolean', () => {
-    expect( newBadDuplicateNameAccount.result ).to.have.be.a( 'boolean' );
+  it( 'newBadDuplicateNameAccount success should be a boolean', () => {
+    expect( newBadDuplicateNameAccount.success ).to.have.be.a( 'boolean' );
   });
 
   it( 'newBadDuplicateNameAccount msg should be a string', () => {
@@ -380,15 +400,15 @@ describe( 'Account Model Create a duplicate username in account', () => {
   });
 
   // Return Value
-  it( 'newBadDuplicateNameAccount should have result of false', () => {
-    expect( newBadDuplicateNameAccount.result ).to.equal( false );
+  it( 'newBadDuplicateNameAccount.success should have value of false', () => {
+    expect( newBadDuplicateNameAccount.success ).to.equal( false );
   });
 
 });
 
 describe( 'Account Model Create a second user', () => {
 
-  function initializeSecondAccount( next ) {
+  const initializeSecondAccount = next => {
     const testUserObj2 = {
         "username": username2,
         "password": password2,
@@ -418,8 +438,8 @@ describe( 'Account Model Create a second user', () => {
     expect( newAccount2.data ).to.have.property( 'password' );
   });
 
-  it( 'newAccount2 should have property result', () => {
-   expect( newAccount2 ).to.have.property( 'result' );
+  it( 'newAccount2 should have property success', () => {
+   expect( newAccount2 ).to.have.property( 'success' );
   });
 
   it( 'newAccount2 should have property username', () => {
@@ -443,6 +463,11 @@ describe( 'Account Model Create a second user', () => {
     expect(newAccount2.data.username).to.be.a( 'string' );
   });
 
+  it( 'newAccount2.success should be a boolean', () => {
+    expect(newAccount2.success).to.be.a( 'boolean' );
+  });
+  
+
   // Return Value
   it( 'newAccount2 should have a password longer than 30', () => {
     expect( newAccount2.data.password ).to.have.lengthOf.at.least( 30 );
@@ -452,21 +477,23 @@ describe( 'Account Model Create a second user', () => {
     expect( newAccount2.data.username ).to.have.lengthOf.at.least( 3 );
   });
 
+  it( 'newAccount2.success should have a value of true', () => {
+    expect( newAccount2.success ).to.equal( true );
+  });
+
 });
 
 describe( 'Account Model Read accountByUsername', () => {
 
   describe( 'Read Account with Good Username', () => {
 
-    function readTestAccountUsername( next ){
+    const readTestAccountUsername = next => {
       accountModel.Read.accountByUsername( username, (result) => {
         readAccountByUsernameResult = result;
         testAccountUID = result.data._id;
-        // console.log( 'testAccountUID' );
-        // console.log( testAccountUID );
         next();
       });
-    }
+    };
 
     before( ( done ) => {
       readTestAccountUsername( done );
@@ -477,78 +504,71 @@ describe( 'Account Model Read accountByUsername', () => {
     });
 
     // Property Exists
-    it( 'readAccountByUsernameResult should contain property data', () => {
-      expect( readAccountByUsernameResult ).to.have.property( 'data' );
-    });
-
-    it( 'readAccountByUsernameResult should contain property data._id', () => {
-      expect( readAccountByUsernameResult.data ).to.have.property( '_id' );
-    });
-
-    it( 'readAccountByUsernameResult should contain property data._type', () => {
-      expect( readAccountByUsernameResult.data) .to.have.property( '_type' );
-    });
-
-    it( 'readAccountByUsernameResult should contain property data.blocked', () => {
-      expect( readAccountByUsernameResult.data ).to.have.property( 'blocked' );
-    });
-
-    it( 'readAccountByUsernameResult should contain property data.deleted', () => {
-      expect(readAccountByUsernameResult.data).to.have.property('deleted');
-    });
-
-    it( 'readAccountByUsernameResult should contain property data.email', () => {
-      expect(readAccountByUsernameResult.data).to.have.property('email');
-    });
-
-    it( 'readAccountByUsernameResult should NOT contain property data.password', () => {
-      expect(readAccountByUsernameResult.data).to.not.have.property('password');
-    });
-
-    it( 'readAccountByUsernameResult should contain property data.username', () => {
-      expect(readAccountByUsernameResult.data).to.have.property('username');
+    it( 'readAccountByUsernameResult.data should NOT contain property password', () => {
+      expect( readAccountByUsernameResult.data ).to.not.have.property( 'password' );
     });
 
     it( 'readAccountByUsernameResult should NOT contain property msg', () => {
       expect(readAccountByUsernameResult).to.not.have.property('msg');
     });
 
-    it( 'readAccountByUsernameResult should contain property result', () => {
-      expect(readAccountByUsernameResult).to.have.property('result');
+
+    it( 'readAccountByUsernameResult should contain property data', () => {
+      expect( readAccountByUsernameResult ).to.have.property( 'data' );
+    });
+
+    it( 'readAccountByUsernameResult.data should contain property _id', () => {
+      expect( readAccountByUsernameResult.data ).to.have.property( '_id' );
+    });
+
+    it( 'readAccountByUsernameResult.data should contain property blocked', () => {
+      expect( readAccountByUsernameResult.data ).to.have.property( 'blocked' );
+    });
+
+    it( 'readAccountByUsernameResult.data should contain property deleted', () => {
+      expect(readAccountByUsernameResult.data).to.have.property('deleted');
+    });
+
+    it( 'readAccountByUsernameResult.data should contain property email', () => {
+      expect(readAccountByUsernameResult.data).to.have.property('email');
+    });
+
+    it( 'readAccountByUsernameResult.data should contain property username', () => {
+      expect(readAccountByUsernameResult.data).to.have.property('username');
+    });
+
+    it( 'readAccountByUsernameResult should contain property success', () => {
+      expect(readAccountByUsernameResult).to.have.property('success');
     });
 
     // Property Type
-    it( 'readAccountByUsernameResult email should be a data._id', () => {
-      expect( readAccountByUsernameResult.data._id ).to.be.a( 'string' );
+    it( 'readAccountByUsernameResult.data._id should be a string', () => {
+      expect( readAccountByUsernameResult.data._id ).to.be.a( 'object' );
     });
 
-    it( 'readAccountByUsernameResult email should be a data._type', () => {
-      expect( readAccountByUsernameResult.data._type ).to.be.a( 'string' );
-    });
-
-    it( 'readAccountByUsernameResult email should be a data.blocked', () => {
+    it( 'readAccountByUsernameResult.data.blocked should be a boolean', () => {
       expect( readAccountByUsernameResult.data.blocked ).to.be.a( 'boolean' );
     });
 
-    it( 'readAccountByUsernameResult email should be a data.deleted', () => {
+    it( 'readAccountByUsernameResult.data.deleted should be a boolean', () => {
       expect( readAccountByUsernameResult.data.deleted ).to.be.a( 'boolean' );
     });
 
-    it( 'readAccountByUsernameResult email should be a data.email', () => {
+    it( 'readAccountByUsernameResult email should be a string', () => {
       expect( readAccountByUsernameResult.data.email ).to.be.a( 'string' );
     });
 
-    it( 'readAccountByUsernameResult data.username should be a string', () => {
+    it( 'readAccountByUsernameResult.data.username should be a string', () => {
       expect( readAccountByUsernameResult.data.username ).to.be.a( 'string' );
     });
 
-    it( 'readAccountByUsernameResult result should be a boolean', () => {
-      expect( readAccountByUsernameResult.result ).to.be.a( 'boolean' );
+    it( 'readAccountByUsernameResult success should be a boolean', () => {
+      expect( readAccountByUsernameResult.success ).to.be.a( 'boolean' );
     });
 
     // Return Value
-    it( 'readAccountByUsernameResult result should have result of true', () => {
-      expect( readAccountByUsernameResult.result ).to.equal( true );
+    it( 'readAccountByUsernameResult.success should have success of true', () => {
+      expect( readAccountByUsernameResult.success ).to.equal( true );
     });
 
   });
@@ -588,8 +608,8 @@ describe( 'Account Model Read accountByUsername', () => {
       expect(readBadUsernameAccountResult).to.have.property('msg');
     });
 
-    it( 'readBadUsernameAccountResult should contain property result', () => {
-      expect(readBadUsernameAccountResult).to.have.property('result');
+    it( 'readBadUsernameAccountResult should contain property success', () => {
+      expect(readBadUsernameAccountResult).to.have.property('success');
     });
 
     // Property Type
@@ -597,8 +617,8 @@ describe( 'Account Model Read accountByUsername', () => {
         expect( readBadUsernameAccountResult.msg ).to.be.a( 'string' );
     });
 
-    it( 'readBadUsernameAccountResult result should be a boolean', () => {
-        expect( readBadUsernameAccountResult.result ).to.be.a( 'boolean' );
+    it( 'readBadUsernameAccountResult success should be a boolean', () => {
+        expect( readBadUsernameAccountResult.success ).to.be.a( 'boolean' );
     });
 
     // Return Value
@@ -607,14 +627,14 @@ describe( 'Account Model Read accountByUsername', () => {
         expect( readBadUsernameAccountResult.msg ).to.equal( errMsg.accountNotFound );
     });
 
-    it( 'readBadUsernameAccountResult.result should have result of false', () => {
-        expect( readBadUsernameAccountResult.result ).to.equal( false );
+    it( 'readBadUsernameAccountResult.success should have success of false', () => {
+        expect( readBadUsernameAccountResult.success ).to.equal( false );
     });
 
   });
 
 });
-
+/*
 describe( 'Account Model Read accountById', () => {
 
   describe( 'Read Account with Good UID.', () => {
@@ -643,10 +663,6 @@ describe( 'Account Model Read accountById', () => {
 
       it('readAccountByIDResult should return property data._id', () => {
           expect(readAccountByIDResult.data).to.have.property('_id');
-      });
-
-      it('readAccountByIDResult should return property data._type', () => {
-          expect(readAccountByIDResult.data).to.have.property('_type');
       });
 
       it('readAccountByIDResult should return property data.blocked', () => {
@@ -680,10 +696,6 @@ describe( 'Account Model Read accountById', () => {
       // Property Type
       it( 'readAccountByIDResult data id should be a string', () => {
           expect( readAccountByIDResult.data._id ).to.be.a( 'string' );
-      });
-
-      it( 'readAccountByIDResult data _type should be a string', () => {
-          expect( readAccountByIDResult.data._type ).to.be.a( 'string' );
       });
 
       it( 'readAccountByIDResult data blocked should be a boolean', () => {
