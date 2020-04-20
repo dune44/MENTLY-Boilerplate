@@ -3127,7 +3127,6 @@ describe('Delete account', () => {
   });
 
 });
-/*
 
 describe( 'Recover Account', () => {
 
@@ -3232,6 +3231,10 @@ describe( 'Recover Account', () => {
     const recoverAccount = next => {
       accountModel.Update.recoverAccount( username, recoveryPhraseUser1, result => {
         good_recoveryPhraseResult = result;
+        if ( result.msg ) {
+          console.log( 'recoverAccount msg' );
+          console.log( result.msg );
+        }
         next();
       });
     };
@@ -3319,5 +3322,3 @@ describe( 'Forgot password.', () => {
   });
 
 });
-
-*/

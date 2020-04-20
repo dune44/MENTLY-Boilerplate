@@ -331,18 +331,15 @@ const accountModel = {
         }
       },
       recoverAccount: ( username, recoveryPhrase, next ) => {
-          const q = N1qlQuery.fromString('SELECT `recoveryPhrase`, `_id` FROM `' + process.env.BUCKET + '` WHERE _type == "account" AND `username` == "' + username + '" ');
-          db.query(q, function(e, r) {
+          accountSchema.find( { "username": username }, 'recovery', (e, r) => {
             if(e){
-              console.log('error in accountMethod.recoverAccount');
-              console.log(e);
-              next({ "error": e, "msg": errMsg.errorMsg, "success": false });
+              h.log( file +' => accountMethod.recoverAccount', e, next );
             }else{
-              if( r.length === 1){
-                accountMethod.passwordCompare( recoveryPhrase, r[0].recoveryPhrase, ( result ) => {
+              if( r && r.length === 1 ){
+                accountMethod.passwordCompare( recoveryPhrase, r[0].recovery.phrase, ( result ) => {
                   if( result ) {
                     accountMethod.update2a( r[0]._id, false, ( update2aResult ) => {
-                      if( update2aResult.result )
+                      if( update2aResult.success )
                         next({ "success": true });
                       else
                         next({ "msg": errMsg.recoveryFailed, "success": false });
@@ -499,7 +496,7 @@ const accountMethod = {
     },
     passwordCompare: ( pwd, hash, next ) => {
       bcrypt.compare( pwd, hash, function( e, r ) {
-        if( e ) h.log( file + ' => accountMethod passwordCompare', e, next );
+        if( e ) h.log( file + ' => accountMethod.passwordCompare', e, next );
         else next( r );
       });
     },
