@@ -397,36 +397,27 @@ const accountModel = {
           });
         },
       role: ( uid, role, next ) => {
-            if( accountMethod.roleExists( role ) ) {
-                accountModel.Read.accountById( uid, ( acct ) => {
-                    if( acct.success ) {
-                        if( acct.data.roles ) acct.data.roles.push(role);
-                        else acct.data.roles = [ role ];
-
-                        const qU = N1qlQuery.fromString('UPDATE `' + process.env.BUCKET +
-                        '` SET roles = ' + JSON.stringify( acct.data.roles ) +
-                        ' WHERE _type == "account" AND _id == "' + uid + '" ');
-                        db.query(qU, function(e, r, m) {
-                            if(e){
-                                console.log('error in accountModel.Update.role');
-                                console.log(e);
-                                next({ "error": e, "msg": errMsg.errorMsg, "success": false });
-                            }else{
-                                if( m.status == 'success' && m.metrics.mutationCount == 1 )
-                                    next({ "success": true });
-                                else
-                                    next({ "msg": 'Not a successful update.', "success": false });
-                            }
-                        });
-
-                    } else {
-                        next({ "msg": 'No such user.', "success": false });
-                    }
-                });
+        if( accountMethod.roleExists( role ) ) {
+          accountModel.Read.accountById( uid, ( acct ) => {
+            if( acct.success ) {
+              if( acct.data.roles ) acct.data.roles.push(role);
+              else acct.data.roles = [ role ];
+              accountSchema.updateOne( { "_id": uid }, { "roles": acct.data.roles }, ( e, r ) => {
+                if ( e ) {
+                  h.log( file + " => accountModel.Update.role", e, next );
+                } else {
+                  if( r.nModified == 1 ) next({ "success": true });
+                  else next({ "msg": 'Not a successful update.', "success": false });
+                }
+              });
             } else {
-                next({ "msg": errMsg.roleInvalid, "success": false });
+               next({ "msg": 'No such user.', "success": false });
             }
-        },
+          });
+        } else {
+          next({ "msg": errMsg.roleInvalid, "success": false });
+        }
+      },
       twoStep: ( uid, token, twoA, next ) => {
             accountMethod.getUserById( uid, false, ( account ) => {
                 if( account.success ){
