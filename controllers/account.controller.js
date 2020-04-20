@@ -153,25 +153,18 @@ const accountModel = {
           });
         },
       rolesById: ( uid, next)  => {
-            const q = N1qlQuery.fromString('SELECT _id, `roles` FROM `' + process.env.BUCKET +
-            '` WHERE _type == "account" AND _id == "' + uid + '" ');
-            db.query(q, (e, r) => {
-                if(e){
-                    console.log('error in accountModel.Read.accountById');
-                    console.log(e);
-                    next({ "msg": e, "success": false});
-                }else{
-                    if( r.length === 1 ) {
-                        const roles = ( r[0].roles ) ? r[0].roles : [] ;
-                        next({ "data": roles, "success": true });
-                    } else if( r.length === 0 ) {
-                        next({ "msg": errMsg.accountNotFound, "success": false });
-                    } else {
-                        next({ "msg": 'Unexpected result', "success": false });
-                    }
-                }
-            });
-        },
+        accountSchema.findById( uid, 'roles', ( e, r ) => {
+          if(e){
+            h.log( file + ' => accountModel.Read.rolesById', e, next );
+          }else{
+            if( r && h.isVal( r.roles ) ) {
+              next({ "data": r.roles, "success": true });
+            } else {
+              next({ "msg": errMsg.accountNotFound, "success": false });
+            } 
+          }
+        });
+      },
       isInRole: ( uid, role, next ) => {
             if( accountMethod.roleExists( role ) ) {
                 const q = N1qlQuery.fromString('SELECT `roles` FROM `' + process.env.BUCKET +

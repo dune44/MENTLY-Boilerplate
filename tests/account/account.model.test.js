@@ -1209,26 +1209,24 @@ describe( 'Account Model Update role', () => {
   });
 
 });
-/* 
+
 describe( 'Account Model Read rolesById', () => {
 
   describe( 'Read populated Roles with Good UID', () => {
     let read_pop_RolesResult;
 
-    function read_pop_RolesByID( next ) {
+    const read_pop_RolesByID = ( next ) => {
       accountModel.Read.rolesById( testAccountUID, ( result ) => {
         read_pop_RolesResult = result;
         next();
       });
     }
 
-    before( ( done ) => {
+    before( done => {
       read_pop_RolesByID( done );
     });
 
-    after( ( done ) => {
-      done();
-    });
+    after( done => done() );
 
     // Property Exists
     it( 'read_pop_RolesResult should NOT have property error', () => {
@@ -1239,8 +1237,8 @@ describe( 'Account Model Read rolesById', () => {
       expect( read_pop_RolesResult ).to.not.have.property( 'msg' );
     });
 
-    it( 'read_pop_RolesResult should have property result', () => {
-      expect( read_pop_RolesResult ).to.have.property( 'result' );
+    it( 'read_pop_RolesResult should have property success', () => {
+      expect( read_pop_RolesResult ).to.have.property( 'success' );
     });
 
     it( 'read_pop_RolesResult should have property data', () => {
@@ -1256,13 +1254,13 @@ describe( 'Account Model Read rolesById', () => {
       expect( read_pop_RolesResult.data ).to.be.a( 'array' );
     });
 
-    it( 'read_pop_RolesResult result should be a boolean', () => {
-      expect( read_pop_RolesResult.result ).to.be.a( 'boolean' );
+    it( 'read_pop_RolesResult.success should be a boolean', () => {
+      expect( read_pop_RolesResult.success ).to.be.a( 'boolean' );
     });
 
     // Return Value
-    it( 'read_pop_RolesResult result should have of true', () => {
-      expect( read_pop_RolesResult.result ).to.equal( true );
+    it( 'read_pop_RolesResult.success should have of true', () => {
+      expect( read_pop_RolesResult.success ).to.equal( true );
     });
 
   });
@@ -1294,8 +1292,8 @@ describe( 'Account Model Read rolesById', () => {
         expect( read_empty_RolesResult ).to.not.have.property( 'msg' );
     });
 
-    it( 'read_empty_RolesResult should have property result', () => {
-        expect( read_empty_RolesResult ).to.have.property( 'result' );
+    it( 'read_empty_RolesResult should have property success', () => {
+        expect( read_empty_RolesResult ).to.have.property( 'success' );
     });
 
     it( 'read_empty_RolesResult should have property data', () => {
@@ -1311,13 +1309,13 @@ describe( 'Account Model Read rolesById', () => {
         expect( read_empty_RolesResult.data ).to.be.a( 'array' );
     });
 
-    it( 'read_empty_RolesResult result should be a boolean', () => {
-      expect( read_empty_RolesResult.result ).to.be.a( 'boolean' );
+    it( 'read_empty_RolesResult.success should be a boolean', () => {
+      expect( read_empty_RolesResult.success ).to.be.a( 'boolean' );
     });
 
     // Return Value
-    it( 'read_empty_RolesResult result should have of true', () => {
-        expect( read_empty_RolesResult.result ).to.equal( true );
+    it( 'read_empty_RolesResult.success should have of true', () => {
+        expect( read_empty_RolesResult.success ).to.equal( true );
     });
 
   });
@@ -1353,8 +1351,8 @@ describe( 'Account Model Read rolesById', () => {
         expect( read_bad_RolesResult ).to.have.property( 'msg' );
     });
 
-    it( 'read_bad_RolesResult should have property result', () => {
-        expect( read_bad_RolesResult ).to.have.property( 'result' );
+    it( 'read_bad_RolesResult should have property success', () => {
+        expect( read_bad_RolesResult ).to.have.property( 'success' );
     });
 
     // Property Type
@@ -1366,18 +1364,19 @@ describe( 'Account Model Read rolesById', () => {
       expect( read_bad_RolesResult.msg ).to.be.a( 'string' );
     });
 
-    it( 'read_bad_RolesResult result should be a boolean', () => {
-      expect( read_bad_RolesResult.result ).to.be.a( 'boolean' );
+    it( 'read_bad_RolesResult.success should be a boolean', () => {
+      expect( read_bad_RolesResult.success ).to.be.a( 'boolean' );
     });
 
     // Return Value
-    it( 'read_bad_RolesResult result should have value of false', () => {
-        expect( read_bad_RolesResult.result ).to.equal( false );
+    it( 'read_bad_RolesResult.success should have value of false', () => {
+        expect( read_bad_RolesResult.success ).to.equal( false );
     });
 
   });
 
 });
+/* 
 
 describe( 'Account Model Read isInRole', () => {
 
