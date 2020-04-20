@@ -990,7 +990,6 @@ describe( 'Account Model Read Validate Credentials', () => {
 
 });
 
-
 describe( 'Account Model Read Token Operations', () => {
 
   let decodedToken;
@@ -1571,15 +1570,14 @@ describe( 'Account Model Read isInRole', () => {
 
 });
 
-/* 
 describe( 'Update email', () => {
 
   describe( 'Update with a good email', () => {
     let update_email_Result;
     const email = "harvey@someothersite.com";
 
-    function updateAccount( next ) {
-      accountModel.Update.email( testAccountUID, email, ( result ) => {
+    const updateAccount = next => {
+      accountModel.Update.email( testAccountUID, email, result => {
         update_email_Result = result;
         if(result.msg){
           console.log( 'msg' );
@@ -1587,13 +1585,10 @@ describe( 'Update email', () => {
         }
         next();
       });
+    };
 
-    }
-
-    before( ( done ) => {
-
+    before( done => {
       updateAccount( done );
-
     });
 
     after( done => done() );
@@ -1607,8 +1602,8 @@ describe( 'Update email', () => {
       expect( update_email_Result ).to.not.have.property( 'msg' );
     });
 
-    it( 'update_email_Result should have property result', () => {
-      expect( update_email_Result ).to.have.property( 'result' );
+    it( 'update_email_Result should have property success', () => {
+      expect( update_email_Result ).to.have.property( 'success' );
     });
 
     // Property Type
@@ -1616,13 +1611,13 @@ describe( 'Update email', () => {
       expect( update_email_Result ).to.be.a( 'Object' );
     });
 
-    it( 'update_email_Result result should be a boolean', () => {
-      expect( update_email_Result.result ).to.be.a( 'boolean' );
+    it( 'update_email_Result.success should be a boolean', () => {
+      expect( update_email_Result.success ).to.be.a( 'boolean' );
     });
 
     // Return Value
-    it( 'update_email_Result result should have value of true', () => {
-      expect( update_email_Result.result ).to.equal( true );
+    it( 'update_email_Result.success should have value of true', () => {
+      expect( update_email_Result.success ).to.equal( true );
     });
 
   });
@@ -1631,18 +1626,15 @@ describe( 'Update email', () => {
     let update_bad_email_Result;
     const email = "bob@SomeSiteCom";
 
-    function updateAccount( next ) {
-      accountModel.Update.email( testAccountUID, email, ( result ) => {
+    const updateAccount = next => {
+      accountModel.Update.email( testAccountUID, email, result => {
         update_bad_email_Result = result;
         next();
       });
+    };
 
-    }
-
-    before( ( done ) => {
-
+    before( done => {
       updateAccount( done );
-
     });
 
     after( done => done() );
@@ -1656,8 +1648,8 @@ describe( 'Update email', () => {
       expect( update_bad_email_Result ).to.have.property( 'msg' );
     });
 
-    it( 'update_bad_email_Result should have property result', () => {
-      expect( update_bad_email_Result ).to.have.property( 'result' );
+    it( 'update_bad_email_Result should have property success', () => {
+      expect( update_bad_email_Result ).to.have.property( 'success' );
     });
 
     // Property Type
@@ -1669,8 +1661,8 @@ describe( 'Update email', () => {
       expect( update_bad_email_Result.msg ).to.be.a( 'string' );
     });
 
-    it( 'update_bad_email_Result result should be a boolean', () => {
-      expect( update_bad_email_Result.result ).to.be.a( 'boolean' );
+    it( 'update_bad_email_Result.success should be a boolean', () => {
+      expect( update_bad_email_Result.success ).to.be.a( 'boolean' );
     });
 
     // Return Value
@@ -1678,8 +1670,8 @@ describe( 'Update email', () => {
       expect( update_bad_email_Result.msg ).to.equal( errMsg.emailInvalid );
     });
 
-    it( 'update_bad_email_Result result should have value of false', () => {
-      expect( update_bad_email_Result.result ).to.equal( false );
+    it( 'update_bad_email_Result.success should have value of false', () => {
+      expect( update_bad_email_Result.success ).to.equal( false );
     });
 
   });
@@ -1688,18 +1680,15 @@ describe( 'Update email', () => {
     let update_badUid_email_Result;
     const email = "b.smith@somesite.com";
 
-    function updateAccount( next ) {
-      accountModel.Update.email( badUID, email, ( result ) => {
+    const updateAccount = next => {
+      accountModel.Update.email( badUID, email, result => {
         update_badUid_email_Result = result;
         next();
       });
+    };
 
-    }
-
-    before( ( done ) => {
-
+    before( done => {
       updateAccount( done );
-
     });
 
     after( done => done() );
@@ -1713,8 +1702,8 @@ describe( 'Update email', () => {
       expect( update_badUid_email_Result ).to.have.property( 'msg' );
     });
 
-    it( 'update_badUid_email_Result should have property result', () => {
-      expect( update_badUid_email_Result ).to.have.property( 'result' );
+    it( 'update_badUid_email_Result should have property success', () => {
+      expect( update_badUid_email_Result ).to.have.property( 'success' );
     });
 
     // Property Type
@@ -1726,8 +1715,8 @@ describe( 'Update email', () => {
       expect( update_badUid_email_Result.msg ).to.be.a( 'string' );
     });
 
-    it( 'update_badUid_email_Result result should be a boolean', () => {
-      expect( update_badUid_email_Result.result ).to.be.a( 'boolean' );
+    it( 'update_badUid_email_Result.success should be a boolean', () => {
+      expect( update_badUid_email_Result.success ).to.be.a( 'boolean' );
     });
 
     // Return Value
@@ -1735,8 +1724,8 @@ describe( 'Update email', () => {
       expect( update_badUid_email_Result.msg ).to.equal( errMsg.accountNotFound );
     });
 
-    it( 'update_badUid_email_Result result should have value of false', () => {
-      expect( update_badUid_email_Result.result ).to.equal( false );
+    it( 'update_badUid_email_Result.success should have value of false', () => {
+      expect( update_badUid_email_Result.success ).to.equal( false );
     });
 
   });
@@ -1749,15 +1738,15 @@ describe( 'Update password', () => {
 
     let goodPasswordResult;
 
-    function updateAccountPassword( next ) {
-      accountModel.Update.password( testAccountUID, password, passwordUpdated, ( result ) => {
+    const updateAccountPassword = next => {
+      accountModel.Update.password( testAccountUID, password, passwordUpdated, result => {
         goodPasswordResult = result;
         if( result.msg ) console.log( result.msg );
         next();
       });
-    }
+    };
 
-    before( ( done ) => {
+    before( done => {
       updateAccountPassword( done );
     });
 
@@ -1772,8 +1761,8 @@ describe( 'Update password', () => {
       expect( goodPasswordResult ).to.not.have.property( 'msg' );
     });
 
-    it( 'goodPasswordResult should have property result', () => {
-      expect( goodPasswordResult ).to.have.property( 'result' );
+    it( 'goodPasswordResult should have property success', () => {
+      expect( goodPasswordResult ).to.have.property( 'success' );
     });
 
     // Property Type
@@ -1781,13 +1770,13 @@ describe( 'Update password', () => {
       expect( goodPasswordResult ).to.be.a( 'Object' );
     });
 
-    it( 'goodPasswordResult.result should be a boolean', () => {
-      expect( goodPasswordResult.result ).to.be.a( 'boolean' );
+    it( 'goodPasswordResult.success should be a boolean', () => {
+      expect( goodPasswordResult.success ).to.be.a( 'boolean' );
     });
 
     // Return Value
-     it( 'goodPasswordResult.result should have value of true', () => {
-      expect( goodPasswordResult.result ).to.equal( true );
+     it( 'goodPasswordResult.success should have value of true', () => {
+      expect( goodPasswordResult.success ).to.equal( true );
     });
 
   });
@@ -1798,14 +1787,14 @@ describe( 'Update password', () => {
 
     const badPassword = 'nm%o&z';
 
-    function updateAccount( next ) {
-      accountModel.Update.password( testAccount2UID, password2, badPassword, ( result ) => {
+    const updateAccount = next => {
+      accountModel.Update.password( testAccount2UID, password2, badPassword, result => {
         badPasswordResult = result;
         next();
       });
-    }
+    };
 
-    before( ( done ) => {
+    before( done => {
       updateAccount( done );
     });
 
@@ -1820,8 +1809,8 @@ describe( 'Update password', () => {
       expect( badPasswordResult ).to.have.property( 'msg' );
     });
 
-    it( 'badPasswordResult should have property result', () => {
-      expect( badPasswordResult ).to.have.property( 'result' );
+    it( 'badPasswordResult should have property success', () => {
+      expect( badPasswordResult ).to.have.property( 'success' );
     });
 
     // Property Type
@@ -1833,8 +1822,8 @@ describe( 'Update password', () => {
       expect( badPasswordResult.msg ).to.be.a( 'string' );
     });
 
-    it( 'badPasswordResult result should be a boolean', () => {
-      expect( badPasswordResult.result ).to.be.a( 'boolean' );
+    it( 'badPasswordResult.success should be a boolean', () => {
+      expect( badPasswordResult.success ).to.be.a( 'boolean' );
     });
 
     // Return Value
@@ -1842,8 +1831,8 @@ describe( 'Update password', () => {
       expect( badPasswordResult.msg ).to.equal( errMsg.passwordTooShort );
     });
 
-    it( 'badPasswordResult result should have value of false', () => {
-      expect( badPasswordResult.result ).to.equal( false );
+    it( 'badPasswordResult.success should have value of false', () => {
+      expect( badPasswordResult.success ).to.equal( false );
     });
 
   });
@@ -1858,14 +1847,14 @@ describe( 'generate a QRcode and secret for 2a', () => {
 
     let qrcodeResult;
 
-    function getSecret( next ) {
-      generatedSecret = accountModel.Update.generateQRCode( badUID, ( result ) => {
+    const getSecret = next => {
+      generatedSecret = accountModel.Update.generateQRCode( badUID, result => {
         qrcodeResult = result;
         next();
       });
-    }
+    };
 
-    before( ( done ) => getSecret( done ) );
+    before( done => getSecret( done ) );
 
     after( done => done() );
 
@@ -1882,8 +1871,8 @@ describe( 'generate a QRcode and secret for 2a', () => {
       expect( qrcodeResult ).to.have.property( 'msg' );
     });
 
-    it( 'qrcodeResult should have property result', () => {
-      expect( qrcodeResult ).to.have.property( 'result' );
+    it( 'qrcodeResult should have property success', () => {
+      expect( qrcodeResult ).to.have.property( 'success' );
     });
 
     // Property Type
@@ -1891,8 +1880,8 @@ describe( 'generate a QRcode and secret for 2a', () => {
       expect( qrcodeResult.msg ).to.be.a( 'string' );
     });
 
-    it( 'qrcodeResult.result should be a boolean', () => {
-      expect( qrcodeResult.result ).to.be.a( 'boolean' );
+    it( 'qrcodeResult.success should be a boolean', () => {
+      expect( qrcodeResult.success ).to.be.a( 'boolean' );
     });
 
     // Return Value
@@ -1900,8 +1889,8 @@ describe( 'generate a QRcode and secret for 2a', () => {
       expect( qrcodeResult.msg ).to.equal( errMsg.updateGenericFail );
     });
 
-    it( 'qrcodeResult.result should have value of false', () => {
-      expect( qrcodeResult.result ).to.equal( false );
+    it( 'qrcodeResult.success should have value of false', () => {
+      expect( qrcodeResult.success ).to.equal( false );
     });
 
   });
@@ -1910,13 +1899,13 @@ describe( 'generate a QRcode and secret for 2a', () => {
 
     let qrcodeResult;
 
-    function getSecret( next ) {
-      generatedSecret = accountModel.Update.generateQRCode( testAccountUID, ( result ) => {
+    const getSecret = next => {
+      generatedSecret = accountModel.Update.generateQRCode( testAccountUID, result => {
         qrcodeResult = result;
         testAccount1_2ASecret = result.secret.base32;
         next();
       });
-    }
+    };
 
     before( ( done ) => getSecret( done ) );
 
@@ -1927,8 +1916,8 @@ describe( 'generate a QRcode and secret for 2a', () => {
       expect( qrcodeResult ).to.have.property( 'data_url' );
     });
 
-    it( 'qrcodeResult should have property result', () => {
-      expect( qrcodeResult ).to.have.property( 'result' );
+    it( 'qrcodeResult should have property success', () => {
+      expect( qrcodeResult ).to.have.property( 'success' );
     });
 
     it( 'qrcodeResult should have property secret', () => {
@@ -1976,13 +1965,13 @@ describe( 'generate a QRcode and secret for 2a', () => {
       expect( qrcodeResult.secret.otpauth_url ).to.be.a( 'string' );
     });
 
-    it( 'qrcodeResult.result should be a boolean', () => {
-      expect( qrcodeResult.result ).to.be.a( 'boolean' );
+    it( 'qrcodeResult.success should be a boolean', () => {
+      expect( qrcodeResult.success ).to.be.a( 'boolean' );
     });
 
     // Return Value
-    it( 'qrcodeResult result should have value of true', () => {
-      expect( qrcodeResult.result ).to.equal( true );
+    it( 'qrcodeResult.success should have value of true', () => {
+      expect( qrcodeResult.success ).to.equal( true );
     });
 
   });
@@ -1993,14 +1982,14 @@ describe( 'Process the recovery phrase.', () => {
 
   describe( 'Generate phrase', () => {
 
-    function getRecoveryPhrase( next ) {
-      accountModel.Read.passphrase( testAccountUID, ( phrase ) => {
+    const getRecoveryPhrase = next => {
+      accountModel.Read.passphrase( testAccountUID, phrase => {
         recoveryPhraseUser1 = phrase;
         next();
       });
-    }
+    };
 
-    before( ( done ) => {
+    before( done => {
       getRecoveryPhrase( done );
     });
 
@@ -2021,12 +2010,12 @@ describe( 'Process the recovery phrase.', () => {
   describe( 'Generate phrase with bad ID', () => {
 
     let badId_getRecoveryPhraseResult;
-    function getRecoveryPhrase( next ) {
-      accountModel.Read.passphrase( badUID, ( phrase ) => {
+    const getRecoveryPhrase = next => {
+      accountModel.Read.passphrase( badUID, phrase => {
         badId_getRecoveryPhraseResult = phrase;
         next();
       });
-    }
+    };
 
     before( ( done ) => {
       getRecoveryPhrase( done );
@@ -2035,8 +2024,8 @@ describe( 'Process the recovery phrase.', () => {
     after( done => done() );
 
     // Property Exists
-    it( 'badId_getRecoveryPhraseResult should have property result', () => {
-      expect( badId_getRecoveryPhraseResult ).to.have.property( 'result' );
+    it( 'badId_getRecoveryPhraseResult should have property success', () => {
+      expect( badId_getRecoveryPhraseResult ).to.have.property( 'success' );
     });
 
     it( 'badId_getRecoveryPhraseResult should have property msg', () => {
@@ -2048,8 +2037,8 @@ describe( 'Process the recovery phrase.', () => {
       expect( badId_getRecoveryPhraseResult.msg ).to.be.a( 'string' );
     });
 
-    it( 'badId_getRecoveryPhraseResult.result should be a boolean', () => {
-      expect( badId_getRecoveryPhraseResult.result ).to.be.a( 'boolean' );
+    it( 'badId_getRecoveryPhraseResult.success should be a boolean', () => {
+      expect( badId_getRecoveryPhraseResult.success ).to.be.a( 'boolean' );
     });
 
     // Return Value
@@ -2057,8 +2046,8 @@ describe( 'Process the recovery phrase.', () => {
       expect( badId_getRecoveryPhraseResult.msg ).to.equal( errMsg.updateGenericFail );
     });
 
-    it( 'badId_getRecoveryPhraseResult.result should have value of false', () => {
-      expect( badId_getRecoveryPhraseResult.result ).to.equal( false );
+    it( 'badId_getRecoveryPhraseResult.success should have value of false', () => {
+      expect( badId_getRecoveryPhraseResult.success ).to.equal( false );
     });
 
   });
@@ -2067,12 +2056,12 @@ describe( 'Process the recovery phrase.', () => {
 
     let goodPassphraseProvedResult;
 
-    function get_Good_PassphraseProved ( next ) {
-      accountModel.Update.passphraseProved( testAccountUID, recoveryPhraseUser1, ( result ) => {
+    const get_Good_PassphraseProved = next => {
+      accountModel.Update.passphraseProved( testAccountUID, recoveryPhraseUser1, result => {
         goodPassphraseProvedResult = result;
         next();
       });
-    }
+    };
 
     before( ( done ) => {
       get_Good_PassphraseProved( done );
@@ -2086,13 +2075,13 @@ describe( 'Process the recovery phrase.', () => {
     });
 
     // Property Type
-    it( 'goodPassphraseProvedResult.result should be a boolean', () => {
-      expect( goodPassphraseProvedResult.result ).to.be.a( 'boolean' );
+    it( 'goodPassphraseProvedResult.success should be a boolean', () => {
+      expect( goodPassphraseProvedResult.success ).to.be.a( 'boolean' );
     });
 
     // Return Value
-    it( 'goodPassphraseProvedResult result should have value of true', () => {
-      expect( goodPassphraseProvedResult.result ).to.equal( true );
+    it( 'goodPassphraseProvedResult.success should have value of true', () => {
+      expect( goodPassphraseProvedResult.success ).to.equal( true );
     });
 
   });
@@ -2102,14 +2091,14 @@ describe( 'Process the recovery phrase.', () => {
     let badPassphraseProvedResult;
     const badRecoveryPhrase = '62y$TqqXdwSg4y%a67pzjRdA&wvtM2F@';
 
-    function get_Good_PassphraseProved ( next ) {
-      accountModel.Update.passphraseProved( testAccountUID, badRecoveryPhrase, ( result ) => {
+    const get_Good_PassphraseProved = next => {
+      accountModel.Update.passphraseProved( testAccountUID, badRecoveryPhrase, result => {
         badPassphraseProvedResult = result;
         next();
       });
-    }
+    };
 
-    before( ( done ) => {
+    before( done => {
       get_Good_PassphraseProved( done );
     });
 
@@ -2120,8 +2109,8 @@ describe( 'Process the recovery phrase.', () => {
       expect( badPassphraseProvedResult ).to.have.property( 'msg' );
     });
 
-    it( 'badPassphraseProvedResult should have property result', () => {
-      expect( badPassphraseProvedResult ).to.have.property( 'result' );
+    it( 'badPassphraseProvedResult should have property success', () => {
+      expect( badPassphraseProvedResult ).to.have.property( 'success' );
     });
 
     // Property Type
@@ -2129,8 +2118,8 @@ describe( 'Process the recovery phrase.', () => {
       expect( badPassphraseProvedResult.msg ).to.be.a( 'string' );
     });
 
-    it( 'badPassphraseProvedResult.result should be a boolean', () => {
-      expect( badPassphraseProvedResult.result ).to.be.a( 'boolean' );
+    it( 'badPassphraseProvedResult.success should be a boolean', () => {
+      expect( badPassphraseProvedResult.success ).to.be.a( 'boolean' );
     });
 
     // Return Value
@@ -2138,8 +2127,8 @@ describe( 'Process the recovery phrase.', () => {
       expect( badPassphraseProvedResult.msg ).to.equal( errMsg.accountValidationFailure );
     });
 
-    it( 'badPassphraseProvedResult.result should have value of false', () => {
-      expect( badPassphraseProvedResult.result ).to.equal( false );
+    it( 'badPassphraseProvedResult.success should have value of false', () => {
+      expect( badPassphraseProvedResult.success ).to.equal( false );
     });
 
   });
@@ -2148,22 +2137,22 @@ describe( 'Process the recovery phrase.', () => {
 
     let badUser_PassphraseProvedResult;
 
-    function get_BadUID_PassphraseRecoveryProved ( next ) {
-      accountModel.Update.passphraseProved( badUID, recoveryPhraseUser1, ( result ) => {
+    const get_BadUID_PassphraseRecoveryProved = next => {
+      accountModel.Update.passphraseProved( badUID, recoveryPhraseUser1, result => {
         badUser_PassphraseProvedResult = result;
         next();
       });
-    }
+    };
 
-    before( ( done ) => {
+    before( done => {
       get_BadUID_PassphraseRecoveryProved( done );
     });
 
     after( done => done() );
 
     // Property Exists
-    it( 'badUser_PassphraseProvedResult should have property result', () => {
-      expect( badUser_PassphraseProvedResult ).to.have.property( 'result' );
+    it( 'badUser_PassphraseProvedResult should have property success', () => {
+      expect( badUser_PassphraseProvedResult ).to.have.property( 'success' );
     });
 
     it( 'badUser_PassphraseProvedResult should have property msg', () => {
@@ -2175,8 +2164,8 @@ describe( 'Process the recovery phrase.', () => {
       expect( badUser_PassphraseProvedResult.msg ).to.be.a( 'string' );
     });
 
-    it( 'badUser_PassphraseProvedResult.result should be a boolean', () => {
-      expect( badUser_PassphraseProvedResult.result ).to.be.a( 'boolean' );
+    it( 'badUser_PassphraseProvedResult.success should be a boolean', () => {
+      expect( badUser_PassphraseProvedResult.success ).to.be.a( 'boolean' );
     });
 
     // Return Value
@@ -2184,8 +2173,8 @@ describe( 'Process the recovery phrase.', () => {
       expect( badUser_PassphraseProvedResult.msg ).to.equal( errMsg.accountNotFound );
     });
 
-    it( 'badUser_PassphraseProvedResult.result should have value of false', () => {
-      expect( badUser_PassphraseProvedResult.result ).to.equal( false );
+    it( 'badUser_PassphraseProvedResult.success should have value of false', () => {
+      expect( badUser_PassphraseProvedResult.success ).to.equal( false );
     });
 
   });
@@ -2200,14 +2189,14 @@ describe( 'Update twoStep', () => {
     const twoA = true;
     const token = '000000';
 
-    function updateTwoA( next ) {
-      accountModel.Update.twoStep( testAccount2UID, token, twoA, ( result ) => {
+    const updateTwoA = next => {
+      accountModel.Update.twoStep( testAccount2UID, token, twoA, result => {
         noConfirm_twoStepResult = result;
         next();
       });
-    }
+    };
 
-    before( ( done ) => {
+    before( done => {
       updateTwoA( done );
     });
 
@@ -2222,8 +2211,8 @@ describe( 'Update twoStep', () => {
       expect( noConfirm_twoStepResult ).to.have.property( 'msg' );
     });
 
-    it( 'noConfirm_twoStepResult should have property result', () => {
-      expect( noConfirm_twoStepResult ).to.have.property( 'result' );
+    it( 'noConfirm_twoStepResult should have property success', () => {
+      expect( noConfirm_twoStepResult ).to.have.property( 'success' );
     });
 
     // Property Type
@@ -2231,8 +2220,8 @@ describe( 'Update twoStep', () => {
       expect( noConfirm_twoStepResult.msg ).to.be.a( 'string' );
     });
 
-    it( 'noConfirm_twoStepResult.result should be a boolean', () => {
-      expect( noConfirm_twoStepResult.result ).to.be.a( 'boolean' );
+    it( 'noConfirm_twoStepResult.success should be a boolean', () => {
+      expect( noConfirm_twoStepResult.success ).to.be.a( 'boolean' );
     });
 
     // Return Value
@@ -2240,8 +2229,8 @@ describe( 'Update twoStep', () => {
       expect( noConfirm_twoStepResult.msg ).to.equal( errMsg.recoveryPhraseNotProved );
     });
 
-    it( 'noConfirm_twoStepResult.result should have value of true', () => {
-      expect( noConfirm_twoStepResult.result ).to.equal( false );
+    it( 'noConfirm_twoStepResult.success should have value of true', () => {
+      expect( noConfirm_twoStepResult.success ).to.equal( false );
     });
 
   });
@@ -2251,10 +2240,10 @@ describe( 'Update twoStep', () => {
     let good_twoStepResult;
     const twoA = true;
 
-    function getToken( next ) {
+    const getToken = next => {
       const token = authenticator.generate( testAccount1_2ASecret );
       // console.log( 'token ' + token );
-      accountModel.Update.twoStep( testAccountUID, token, twoA, ( result ) => {
+      accountModel.Update.twoStep( testAccountUID, token, twoA, result => {
         good_twoStepResult = result;
         if( result.msg ) {
           console.log( 'result.msg' );
@@ -2262,10 +2251,9 @@ describe( 'Update twoStep', () => {
         }
         next();
       });
+    };
 
-    }
-
-    before( ( done ) => {
+    before( done => {
       getToken( done );
     });
 
@@ -2280,18 +2268,18 @@ describe( 'Update twoStep', () => {
       expect( good_twoStepResult ).to.not.have.property( 'error' );
     });
 
-    it( 'good_twoStepResult should have property result', () => {
-      expect( good_twoStepResult ).to.have.property( 'result' );
+    it( 'good_twoStepResult should have property success', () => {
+      expect( good_twoStepResult ).to.have.property( 'success' );
     });
 
     // Property Type
-    it( 'good_twoStepResult.result should be a boolean', () => {
-      expect( good_twoStepResult.result ).to.be.a( 'boolean' );
+    it( 'good_twoStepResult.success should be a boolean', () => {
+      expect( good_twoStepResult.success ).to.be.a( 'boolean' );
     });
 
     // Return Value
-    it( 'good_twoStepResult.result should have value of true', () => {
-      expect( good_twoStepResult.result ).to.equal( true );
+    it( 'good_twoStepResult.success should have value of true', () => {
+      expect( good_twoStepResult.success ).to.equal( true );
     });
 
   });
@@ -2301,16 +2289,15 @@ describe( 'Update twoStep', () => {
     let badID_twoStepResult;
     const twoA = true;
 
-    function updateTwoA( next ) {
+    const updateTwoA = next => {
       const token = authenticator.generate( testAccount1_2ASecret );
-
-      accountModel.Update.twoStep( badUID, token, twoA, ( result ) => {
+      accountModel.Update.twoStep( badUID, token, twoA, result => {
         badID_twoStepResult = result;
         next();
       });
-    }
+    };
 
-    before( ( done ) => {
+    before( done => {
       updateTwoA( done );
     });
 
@@ -2325,8 +2312,8 @@ describe( 'Update twoStep', () => {
       expect( badID_twoStepResult ).to.have.property( 'msg' );
     });
 
-    it( 'badID_twoStepResult should have property result', () => {
-      expect( badID_twoStepResult ).to.have.property( 'result' );
+    it( 'badID_twoStepResult should have property success', () => {
+      expect( badID_twoStepResult ).to.have.property( 'success' );
     });
 
     // Property Type
@@ -2334,8 +2321,8 @@ describe( 'Update twoStep', () => {
       expect( badID_twoStepResult.msg ).to.be.a( 'string' );
     });
 
-    it( 'badID_twoStepResult.result should be a boolean', () => {
-      expect( badID_twoStepResult.result ).to.be.a( 'boolean' );
+    it( 'badID_twoStepResult.success should be a boolean', () => {
+      expect( badID_twoStepResult.success ).to.be.a( 'boolean' );
     });
 
     // Return Value
@@ -2343,8 +2330,8 @@ describe( 'Update twoStep', () => {
       expect( badID_twoStepResult.msg ).to.equal( errMsg.accountNotFound );
     });
 
-    it( 'badID_twoStepResult.result should have value of true', () => {
-      expect( badID_twoStepResult.result ).to.equal( false );
+    it( 'badID_twoStepResult.success should have value of true', () => {
+      expect( badID_twoStepResult.success ).to.equal( false );
     });
 
   });
@@ -2357,12 +2344,12 @@ describe( 'Login with 2A', () => {
 
     let no2A_LoginResult;
 
-    function no2A_Login( next ) {
-      accountModel.Read.validateAccount( username, passwordUpdated, fauxIPS, null, ( result ) => {
+    const no2A_Login = next => {
+      accountModel.Read.validateAccount( username, passwordUpdated, fauxIPS, null, result => {
         no2A_LoginResult = result;
         next();
       });
-    }
+    };
 
     before( done => {
       no2A_Login( done );
@@ -2379,8 +2366,8 @@ describe( 'Login with 2A', () => {
       expect( no2A_LoginResult ).to.not.have.property( 'token' );
     });
 
-    it( 'no2A_LoginResult should have property result', () => {
-      expect( no2A_LoginResult ).to.have.property( 'result' );
+    it( 'no2A_LoginResult should have property success', () => {
+      expect( no2A_LoginResult ).to.have.property( 'success' );
     });
 
     it( 'no2A_LoginResult should have property msg', () => {
@@ -2388,8 +2375,8 @@ describe( 'Login with 2A', () => {
     });
 
     // Property Type
-    it( 'no2A_LoginResult result should be a boolean', () => {
-      expect( no2A_LoginResult.result ).to.be.a( 'boolean' );
+    it( 'no2A_LoginResult.success should be a boolean', () => {
+      expect( no2A_LoginResult.success ).to.be.a( 'boolean' );
     });
 
     it( 'no2A_LoginResult msg should be a string', () => {
@@ -2397,8 +2384,8 @@ describe( 'Login with 2A', () => {
     });
 
     // Return Value
-    it( 'no2A_LoginResult result should have value of false', () => {
-      expect( no2A_LoginResult.result ).to.equal( false );
+    it( 'no2A_LoginResult.success should have value of false', () => {
+      expect( no2A_LoginResult.success ).to.equal( false );
     });
 
     it( 'no2A_LoginResult msg should have value of var accountValidationFailure', () => {
@@ -2411,12 +2398,12 @@ describe( 'Login with 2A', () => {
 
     let bad2A_LoginResult;
 
-    function no2A_Login( next ) {
-      accountModel.Read.validateAccount( username, passwordUpdated, fauxIPS, '000000', ( result ) => {
+    const no2A_Login = next => {
+      accountModel.Read.validateAccount( username, passwordUpdated, fauxIPS, '000000', result => {
         bad2A_LoginResult =result;
         next();
       });
-    }
+    };
 
     before( done => {
       no2A_Login( done );
@@ -2433,8 +2420,8 @@ describe( 'Login with 2A', () => {
       expect( bad2A_LoginResult ).to.not.have.property( 'token' );
     });
 
-    it( 'bad2A_LoginResult should have property result', () => {
-      expect( bad2A_LoginResult ).to.have.property( 'result' );
+    it( 'bad2A_LoginResult should have property success', () => {
+      expect( bad2A_LoginResult ).to.have.property( 'success' );
     });
 
     it( 'bad2A_LoginResult should have property msg', () => {
@@ -2442,8 +2429,8 @@ describe( 'Login with 2A', () => {
     });
 
     // Property Type
-    it( 'bad2A_LoginResult result should be a boolean', () => {
-      expect( bad2A_LoginResult.result ).to.be.a( 'boolean' );
+    it( 'bad2A_LoginResult.success should be a boolean', () => {
+      expect( bad2A_LoginResult.success ).to.be.a( 'boolean' );
     });
 
     it( 'bad2A_LoginResult msg should be a string', () => {
@@ -2451,8 +2438,8 @@ describe( 'Login with 2A', () => {
     });
 
     // Return Value
-    it( 'bad2A_LoginResult result should have value of false', () => {
-      expect( bad2A_LoginResult.result ).to.equal( false );
+    it( 'bad2A_LoginResult success should have value of false', () => {
+      expect( bad2A_LoginResult.success ).to.equal( false );
     });
 
     it( 'bad2A_LoginResult msg should have value of var accountValidationFailure', () => {
@@ -2465,13 +2452,12 @@ describe( 'Login with 2A', () => {
 
     let unnecessary2A_LoginResult;
 
-    function no2A_Login( next ) {
-
-      accountModel.Read.validateAccount( username2, password2, fauxIPS, '000000', ( result ) => {
+    const no2A_Login = next => {
+      accountModel.Read.validateAccount( username2, password2, fauxIPS, '000000', result => {
         unnecessary2A_LoginResult = result;
         next();
       });
-    }
+    };
 
     before( done => {
       no2A_Login( done );
@@ -2488,8 +2474,8 @@ describe( 'Login with 2A', () => {
       expect( unnecessary2A_LoginResult ).to.not.have.property( 'data' );
     });
 
-    it( 'unnecessary2A_LoginResult should have property result', () => {
-      expect( unnecessary2A_LoginResult ).to.have.property( 'result' );
+    it( 'unnecessary2A_LoginResult should have property success', () => {
+      expect( unnecessary2A_LoginResult ).to.have.property( 'success' );
     });
 
     it( 'unnecessary2A_LoginResult should have property token', () => {
@@ -2497,8 +2483,8 @@ describe( 'Login with 2A', () => {
     });
 
     // Property Type
-    it( 'unnecessary2A_LoginResult result should be a boolean', () => {
-      expect( unnecessary2A_LoginResult.result ).to.be.a( 'boolean' );
+    it( 'unnecessary2A_LoginResult.success should be a boolean', () => {
+      expect( unnecessary2A_LoginResult.success ).to.be.a( 'boolean' );
     });
 
     it( 'unnecessary2A_LoginResult token should be a string', () => {
@@ -2506,8 +2492,8 @@ describe( 'Login with 2A', () => {
     });
 
     // Return Value
-    it( 'unnecessary2A_LoginResult result should have value of true', () => {
-      expect( unnecessary2A_LoginResult.result ).to.equal( true );
+    it( 'unnecessary2A_LoginResult.success should have value of true', () => {
+      expect( unnecessary2A_LoginResult.success ).to.equal( true );
     });
 
   });
@@ -2516,9 +2502,8 @@ describe( 'Login with 2A', () => {
 
       let good_LoginResult;
 
-      function no2A_Login( next ) {
+      const no2A_Login = next => {
         const token = authenticator.generate( testAccount1_2ASecret );
-
         accountModel.Read.validateAccount( username, passwordUpdated, fauxIPS, token, ( result ) => {
           good_LoginResult = result;
           if ( result.msg ) {
@@ -2530,7 +2515,7 @@ describe( 'Login with 2A', () => {
           }
           next();
         });
-      }
+      };
 
       before( done => {
         no2A_Login( done );
@@ -2547,8 +2532,8 @@ describe( 'Login with 2A', () => {
         expect( good_LoginResult ).to.not.have.property( 'data' );
       });
 
-      it( 'good_LoginResult should have property result', () => {
-        expect( good_LoginResult ).to.have.property( 'result' );
+      it( 'good_LoginResult should have property success', () => {
+        expect( good_LoginResult ).to.have.property( 'success' );
       });
 
       it( 'good_LoginResult should have property token', () => {
@@ -2556,8 +2541,8 @@ describe( 'Login with 2A', () => {
       });
 
       // Property Type
-      it( 'good_LoginResult result should be a boolean', () => {
-        expect( good_LoginResult.result ).to.be.a( 'boolean' );
+      it( 'good_LoginResult.success should be a boolean', () => {
+        expect( good_LoginResult.success ).to.be.a( 'boolean' );
       });
 
       it( 'good_LoginResult token should be a string', () => {
@@ -2565,8 +2550,8 @@ describe( 'Login with 2A', () => {
       });
 
       // Return Value
-      it( 'good_LoginResult result should have value of true', () => {
-        expect( good_LoginResult.result ).to.equal( true );
+      it( 'good_LoginResult.success should have value of true', () => {
+        expect( good_LoginResult.success ).to.equal( true );
       });
 
   });
@@ -2579,13 +2564,13 @@ describe('Delete account', () => {
 
     let badID_deleteAccountResult;
 
-    function badID_deleteAccount( next ) {
+    const badID_deleteAccount = next => {
       const token = authenticator.generate( testAccount1_2ASecret );
-      accountModel.Delete.accountSoftly( 'badUsername', passwordUpdated, fauxIPS, token, ( result ) => {
+      accountModel.Delete.accountSoftly( 'badUsername', passwordUpdated, fauxIPS, token, result => {
         badID_deleteAccountResult = result;
         next();
       });
-    }
+    };
 
     before( done => {
       badID_deleteAccount( done );
@@ -2594,8 +2579,8 @@ describe('Delete account', () => {
     after( done => done() );
 
     // Property Exists
-    it( 'badID_deleteAccountResult should have property result', () => {
-      expect( badID_deleteAccountResult ).to.have.property( 'result' );
+    it( 'badID_deleteAccountResult should have property success', () => {
+      expect( badID_deleteAccountResult ).to.have.property( 'success' );
     });
 
     it( 'badID_deleteAccountResult should have property msg', () => {
@@ -2607,8 +2592,8 @@ describe('Delete account', () => {
       expect( badID_deleteAccountResult.msg ).to.be.a( 'string' );
     });
 
-    it( 'badID_deleteAccountResult.result should be a boolean', () => {
-      expect( badID_deleteAccountResult.result ).to.be.a( 'boolean' );
+    it( 'badID_deleteAccountResult.success should be a boolean', () => {
+      expect( badID_deleteAccountResult.success ).to.be.a( 'boolean' );
     });
 
     // Return Value
@@ -2616,8 +2601,8 @@ describe('Delete account', () => {
       expect( badID_deleteAccountResult.msg ).to.equal( errMsg.accountNotFound );
     });
 
-    it( 'badID_deleteAccountResult.result should have value of false', () => {
-      expect( badID_deleteAccountResult.result ).to.equal( false );
+    it( 'badID_deleteAccountResult.success should have value of false', () => {
+      expect( badID_deleteAccountResult.success ).to.equal( false );
     });
 
   });
@@ -2626,13 +2611,13 @@ describe('Delete account', () => {
 
     let good_softDeleteAccountResult;
 
-    function good_softDeleteAccount( next ) {
+    const good_softDeleteAccount = next => {
       const token = authenticator.generate( testAccount1_2ASecret );
-      accountModel.Delete.accountSoftly( username, passwordUpdated, fauxIPS, token, ( result ) => {
+      accountModel.Delete.accountSoftly( username, passwordUpdated, fauxIPS, token, result => {
         good_deleteAccountResult = result;
         next();
       });
-    }
+    };
 
     before( done => {
       good_softDeleteAccount( done );
@@ -2645,18 +2630,18 @@ describe('Delete account', () => {
       expect( good_deleteAccountResult ).to.not.have.property( 'msg' );
     });
 
-    it( 'good_deleteAccountResult should have property result', () => {
-      expect( good_deleteAccountResult ).to.have.property( 'result' );
+    it( 'good_deleteAccountResult should have property success', () => {
+      expect( good_deleteAccountResult ).to.have.property( 'success' );
     });
 
     // Property Type
-    it( 'good_deleteAccountResult.result should be a boolean', () => {
-      expect( good_deleteAccountResult.result ).to.be.a( 'boolean' );
+    it( 'good_deleteAccountResult.success should be a boolean', () => {
+      expect( good_deleteAccountResult.success ).to.be.a( 'boolean' );
     });
 
     // Return Value
-    it( 'good_deleteAccountResult.result should have value of true', () => {
-      expect( good_deleteAccountResult.result ).to.equal( true );
+    it( 'good_deleteAccountResult.success should have value of true', () => {
+      expect( good_deleteAccountResult.success ).to.equal( true );
     });
 
   });
@@ -2667,14 +2652,14 @@ describe('Delete account', () => {
 
       let getSoftDeletedAccountByIdResult;
 
-      function getSoftDeletedAccount( next ) {
-        accountModel.Read.accountById( testAccountUID, ( result ) => {
+      const getSoftDeletedAccount = next => {
+        accountModel.Read.accountById( testAccountUID, result => {
           getSoftDeletedAccountByIdResult = result;
           next();
         });
-      }
+      };
 
-      before( ( done ) => {
+      before( done => {
         getSoftDeletedAccount( done );
       });
 
@@ -2685,8 +2670,8 @@ describe('Delete account', () => {
         expect( getSoftDeletedAccountByIdResult ).to.have.property( 'msg' );
       });
 
-      it( 'getSoftDeletedAccountByIdResult should have property result', () => {
-        expect( getSoftDeletedAccountByIdResult ).to.have.property( 'result' );
+      it( 'getSoftDeletedAccountByIdResult should have property success', () => {
+        expect( getSoftDeletedAccountByIdResult ).to.have.property( 'success' );
       });
 
       // Property Type
@@ -2694,8 +2679,8 @@ describe('Delete account', () => {
         expect( getSoftDeletedAccountByIdResult.msg ).to.be.a( 'string' );
       });
 
-      it( 'getSoftDeletedAccountByIdResult.result should be a boolean', () => {
-        expect( getSoftDeletedAccountByIdResult.result ).to.be.a( 'boolean' );
+      it( 'getSoftDeletedAccountByIdResult.success should be a boolean', () => {
+        expect( getSoftDeletedAccountByIdResult.success ).to.be.a( 'boolean' );
       });
 
       // Return Value
@@ -2703,8 +2688,8 @@ describe('Delete account', () => {
         expect( getSoftDeletedAccountByIdResult.msg ).to.equal( errMsg.accountNotFound );
       });
 
-      it( 'getSoftDeletedAccountByIdResult.result should have value of false', () => {
-        expect( getSoftDeletedAccountByIdResult.result ).to.equal( false );
+      it( 'getSoftDeletedAccountByIdResult.success should have value of false', () => {
+        expect( getSoftDeletedAccountByIdResult.success ).to.equal( false );
       });
 
     });
@@ -2713,14 +2698,14 @@ describe('Delete account', () => {
 
       let getSoftDeletedAccountByUsernameResult;
 
-      function getSoftDeletedAccount( next ) {
-        accountModel.Read.accountByUsername( username, ( result ) => {
+      const getSoftDeletedAccount = next => {
+        accountModel.Read.accountByUsername( username, result => {
           getSoftDeletedAccountByUsernameResult = result;
           next();
         });
-      }
+      };
 
-      before( ( done ) => {
+      before( done => {
         getSoftDeletedAccount( done );
       });
 
@@ -2731,8 +2716,8 @@ describe('Delete account', () => {
         expect( getSoftDeletedAccountByUsernameResult ).to.have.property( 'msg' );
       });
 
-      it( 'getSoftDeletedAccountByUsernameResult should have property result', () => {
-        expect( getSoftDeletedAccountByUsernameResult ).to.have.property( 'result' );
+      it( 'getSoftDeletedAccountByUsernameResult should have property success', () => {
+        expect( getSoftDeletedAccountByUsernameResult ).to.have.property( 'success' );
       });
 
       // Property Type
@@ -2740,8 +2725,8 @@ describe('Delete account', () => {
         expect( getSoftDeletedAccountByUsernameResult.msg ).to.be.a( 'string' );
       });
 
-      it( 'getSoftDeletedAccountByUsernameResult.result should be a boolean', () => {
-        expect( getSoftDeletedAccountByUsernameResult.result ).to.be.a( 'boolean' );
+      it( 'getSoftDeletedAccountByUsernameResult.success should be a boolean', () => {
+        expect( getSoftDeletedAccountByUsernameResult.success ).to.be.a( 'boolean' );
       });
 
       // Return Value
@@ -2749,8 +2734,8 @@ describe('Delete account', () => {
         expect( getSoftDeletedAccountByUsernameResult.msg ).to.equal( errMsg.accountNotFound );
       });
 
-      it( 'getSoftDeletedAccountByUsernameResult.result should have value of false', () => {
-        expect( getSoftDeletedAccountByUsernameResult.result ).to.equal( false );
+      it( 'getSoftDeletedAccountByUsernameResult.success should have value of false', () => {
+        expect( getSoftDeletedAccountByUsernameResult.success ).to.equal( false );
       });
 
     });
@@ -2759,14 +2744,14 @@ describe('Delete account', () => {
 
       let allAccountsResult;
 
-      function getAllAccount( next ) {
-        accountModel.Read.all( ( result ) => {
+      const getAllAccount = next => {
+        accountModel.Read.all( result => {
           allAccountsResult = result;
           next();
         });
-      }
+      };
 
-      before( ( done ) => {
+      before( done => {
         getAllAccount( done );
       });
 
@@ -2777,8 +2762,8 @@ describe('Delete account', () => {
         expect( allAccountsResult ).to.have.property( 'data' );
       });
 
-      it( 'allAccountsResult should have property result', () => {
-        expect( allAccountsResult ).to.have.property( 'result' );
+      it( 'allAccountsResult should have property success', () => {
+        expect( allAccountsResult ).to.have.property( 'success' );
       });
 
       // Property Type
@@ -2786,8 +2771,8 @@ describe('Delete account', () => {
         expect( allAccountsResult.data ).to.be.a( 'array' );
       });
 
-      it( 'allAccountsResult.result should be a boolean', () => {
-        expect( allAccountsResult.result ).to.be.a( 'boolean' );
+      it( 'allAccountsResult.success should be a boolean', () => {
+        expect( allAccountsResult.success ).to.be.a( 'boolean' );
       });
 
       // Return Value
@@ -2795,8 +2780,8 @@ describe('Delete account', () => {
         expect( allAccountsResult.data ).to.be.length( 1 );
       });
 
-      it( 'allAccountsResult.result should have value of true', () => {
-        expect( allAccountsResult.result ).to.equal( true );
+      it( 'allAccountsResult.success should have value of true', () => {
+        expect( allAccountsResult.success ).to.equal( true );
       });
 
     });
@@ -2805,22 +2790,22 @@ describe('Delete account', () => {
 
       let recoveryPhraseResult;
 
-      function getRecoveryPhrase( next ) {
-        accountModel.Read.passphrase( testAccountUID, ( phrase ) => {
+      const getRecoveryPhrase = next => {
+        accountModel.Read.passphrase( testAccountUID, phrase => {
           recoveryPhraseResult = phrase;
           next();
         });
-      }
+      };
 
-      before( ( done ) => {
+      before( done => {
         getRecoveryPhrase( done );
       });
 
       after( done => done() );
 
       // Property Exists
-      it( 'recoveryPhraseResult should have property result', () => {
-        expect( recoveryPhraseResult ).to.have.property( 'result' );
+      it( 'recoveryPhraseResult should have property success', () => {
+        expect( recoveryPhraseResult ).to.have.property( 'success' );
       });
 
       it( 'recoveryPhraseResult should have property msg', () => {
@@ -2832,8 +2817,8 @@ describe('Delete account', () => {
         expect( recoveryPhraseResult.msg ).to.be.a( 'string' );
       });
 
-      it( 'recoveryPhraseResult.result should be a boolean', () => {
-        expect( recoveryPhraseResult.result ).to.be.a( 'boolean' );
+      it( 'recoveryPhraseResult.success should be a boolean', () => {
+        expect( recoveryPhraseResult.success ).to.be.a( 'boolean' );
       });
 
       // Return Value
@@ -2841,15 +2826,15 @@ describe('Delete account', () => {
         expect( recoveryPhraseResult.msg ).to.equal( errMsg.updateGenericFail );
       });
 
-      it( 'recoveryPhraseResult.result should have value of false', () => {
-        expect( recoveryPhraseResult.result ).to.equal( false );
+      it( 'recoveryPhraseResult.success should have value of false', () => {
+        expect( recoveryPhraseResult.success ).to.equal( false );
       });
 
     });
 
     describe( 'rolesById', () => {
 
-      before( ( done ) => {
+      before( done => {
         done();
       });
 
@@ -2865,7 +2850,7 @@ describe('Delete account', () => {
 
     describe( 'isInRole', () => {
 
-      before( ( done ) => {
+      before( done => {
         done();
       });
 
@@ -2883,15 +2868,15 @@ describe('Delete account', () => {
 
       let updateEmailResult;
 
-      function updateEmail( next ) {
+      const updateEmail = next => {
           const email = 'deletedaccount@email.com';
-          accountModel.Update.email( testAccountUID, email, ( result ) => {
+          accountModel.Update.email( testAccountUID, email, result => {
             updateEmailResult = result;
             next();
           });
-      }
+      };
 
-      before( ( done ) => {
+      before( done => {
         updateEmail( done );
       });
 
@@ -2905,8 +2890,8 @@ describe('Delete account', () => {
         expect( updateEmailResult ).to.have.property( 'msg' );
       });
 
-      it( 'updateEmailResult should have property result', () => {
-        expect( updateEmailResult ).to.have.property( 'result' );
+      it( 'updateEmailResult should have property success', () => {
+        expect( updateEmailResult ).to.have.property( 'success' );
       });
 
       // Property Type
@@ -2918,8 +2903,8 @@ describe('Delete account', () => {
         expect( updateEmailResult.msg ).to.be.a( 'string' );
       });
 
-      it( 'updateEmailResult.result should be a boolean', () => {
-        expect( updateEmailResult.result ).to.be.a( 'boolean' );
+      it( 'updateEmailResult.success should be a boolean', () => {
+        expect( updateEmailResult.success ).to.be.a( 'boolean' );
       });
 
       // Return Value
@@ -2927,8 +2912,8 @@ describe('Delete account', () => {
         expect( updateEmailResult.msg ).to.equal( errMsg.accountNotFound );
       });
 
-      it( 'updateEmailResult.result should have value of false', () => {
-        expect( updateEmailResult.result ).to.equal( false );
+      it( 'updateEmailResult.success should have value of false', () => {
+        expect( updateEmailResult.success ).to.equal( false );
       });
 
     });
@@ -2937,14 +2922,14 @@ describe('Delete account', () => {
 
       let generateQRResult;
 
-      function getSecret( next ) {
-        generatedSecret = accountModel.Update.generateQRCode( testAccountUID, ( result ) => {
+      const getSecret = next => {
+        generatedSecret = accountModel.Update.generateQRCode( testAccountUID, result => {
           generateQRResult = result;
           next();
         });
-      }
+      };
 
-      before( ( done ) => getSecret( done ) );
+      before( done => getSecret( done ) );
 
       after( done => done() );
 
@@ -2961,8 +2946,8 @@ describe('Delete account', () => {
         expect( generateQRResult ).to.have.property( 'msg' );
       });
 
-      it( 'generateQRResult should have property result', () => {
-        expect( generateQRResult ).to.have.property( 'result' );
+      it( 'generateQRResult should have property success', () => {
+        expect( generateQRResult ).to.have.property( 'success' );
       });
 
       // Property Type
@@ -2970,8 +2955,8 @@ describe('Delete account', () => {
         expect( generateQRResult.msg ).to.be.a( 'string' );
       });
 
-      it( 'generateQRResult.result should be a boolean', () => {
-        expect( generateQRResult.result ).to.be.a( 'boolean' );
+      it( 'generateQRResult.success should be a boolean', () => {
+        expect( generateQRResult.success ).to.be.a( 'boolean' );
       });
 
       // Return Value
@@ -2979,8 +2964,8 @@ describe('Delete account', () => {
         expect( generateQRResult.msg ).to.equal( errMsg.updateGenericFail );
       });
 
-      it( 'generateQRResult.result should have value of false', () => {
-        expect( generateQRResult.result ).to.equal( false );
+      it( 'generateQRResult.success should have value of false', () => {
+        expect( generateQRResult.success ).to.equal( false );
       });
 
     });
@@ -2989,22 +2974,22 @@ describe('Delete account', () => {
 
       let deletedAccount_PassphraseProvedResult;
 
-      function get_BadUID_PassphraseRecoveryProved ( next ) {
-        accountModel.Update.passphraseProved( testAccountUID, recoveryPhraseUser1, ( result ) => {
+      const get_BadUID_PassphraseRecoveryProved = next => {
+        accountModel.Update.passphraseProved( testAccountUID, recoveryPhraseUser1, result => {
           deletedAccount_PassphraseProvedResult = result;
           next();
         });
-      }
+      };
 
-      before( ( done ) => {
+      before( done => {
         get_BadUID_PassphraseRecoveryProved( done );
       });
 
       after( done => done() );
 
       // Property Exists
-      it( 'deletedAccount_PassphraseProvedResult should have property result', () => {
-        expect( deletedAccount_PassphraseProvedResult ).to.have.property( 'result' );
+      it( 'deletedAccount_PassphraseProvedResult should have property success', () => {
+        expect( deletedAccount_PassphraseProvedResult ).to.have.property( 'success' );
       });
 
       it( 'deletedAccount_PassphraseProvedResult should have property msg', () => {
@@ -3016,8 +3001,8 @@ describe('Delete account', () => {
         expect( deletedAccount_PassphraseProvedResult.msg ).to.be.a( 'string' );
       });
 
-      it( 'deletedAccount_PassphraseProvedResult.result should be a boolean', () => {
-        expect( deletedAccount_PassphraseProvedResult.result ).to.be.a( 'boolean' );
+      it( 'deletedAccount_PassphraseProvedResult.success should be a boolean', () => {
+        expect( deletedAccount_PassphraseProvedResult.success ).to.be.a( 'boolean' );
       });
 
       // Return Value
@@ -3025,8 +3010,8 @@ describe('Delete account', () => {
         expect( deletedAccount_PassphraseProvedResult.msg ).to.equal( errMsg.accountNotFound );
       });
 
-      it( 'deletedAccount_PassphraseProvedResult.result should have value of false', () => {
-        expect( deletedAccount_PassphraseProvedResult.result ).to.equal( false );
+      it( 'deletedAccount_PassphraseProvedResult.success should have value of false', () => {
+        expect( deletedAccount_PassphraseProvedResult.success ).to.equal( false );
       });
 
     });
@@ -3036,14 +3021,14 @@ describe('Delete account', () => {
       let deleteAccount_updatePasswordResult;
       const passwordUpdated2 = 'xt2PUef^E';
 
-      function updatePass( next ) {
-        accountModel.Update.password( testAccountUID, passwordUpdated, passwordUpdated2, ( result ) => {
+      const updatePass = next => {
+        accountModel.Update.password( testAccountUID, passwordUpdated, passwordUpdated2, result => {
           deleteAccount_updatePasswordResult = result;
           next();
         });
-      }
+      };
 
-      before( ( done ) => {
+      before( done => {
         updatePass( done );
       });
 
@@ -3058,8 +3043,8 @@ describe('Delete account', () => {
         expect( deleteAccount_updatePasswordResult ).to.have.property( 'msg' );
       });
 
-      it( 'deleteAccount_updatePasswordResult should have property result', () => {
-        expect( deleteAccount_updatePasswordResult ).to.have.property( 'result' );
+      it( 'deleteAccount_updatePasswordResult should have property success', () => {
+        expect( deleteAccount_updatePasswordResult ).to.have.property( 'success' );
       });
 
       // Property Type
@@ -3071,8 +3056,8 @@ describe('Delete account', () => {
         expect( deleteAccount_updatePasswordResult.msg ).to.be.a( 'string' );
       });
 
-      it( 'deleteAccount_updatePasswordResult.result should be a boolean', () => {
-        expect( deleteAccount_updatePasswordResult.result ).to.be.a( 'boolean' );
+      it( 'deleteAccount_updatePasswordResult.success should be a boolean', () => {
+        expect( deleteAccount_updatePasswordResult.success ).to.be.a( 'boolean' );
       });
 
       // Return Value
@@ -3080,8 +3065,8 @@ describe('Delete account', () => {
         expect( deleteAccount_updatePasswordResult.msg ).to.equal( errMsg.accountNotFound );
       });
 
-       it( 'deleteAccount_updatePasswordResult.result should have value of false', () => {
-        expect( deleteAccount_updatePasswordResult.result ).to.equal( false );
+       it( 'deleteAccount_updatePasswordResult.success should have value of false', () => {
+        expect( deleteAccount_updatePasswordResult.success ).to.equal( false );
       });
 
     });
@@ -3091,16 +3076,16 @@ describe('Delete account', () => {
       let deleteAccount_twoStepResult;
       const twoA = true;
 
-      function updateTwoA( next ) {
+      const updateTwoA = next => {
         const token = authenticator.generate( testAccount1_2ASecret );
 
-        accountModel.Update.twoStep( testAccountUID, token, twoA, ( result ) => {
+        accountModel.Update.twoStep( testAccountUID, token, twoA, result => {
           deleteAccount_twoStepResult = result;
           next();
         });
-      }
+      };
 
-      before( ( done ) => {
+      before( done => {
         updateTwoA( done );
       });
 
@@ -3115,8 +3100,8 @@ describe('Delete account', () => {
         expect( deleteAccount_twoStepResult ).to.have.property( 'msg' );
       });
 
-      it( 'deleteAccount_twoStepResult should have property result', () => {
-        expect( deleteAccount_twoStepResult ).to.have.property( 'result' );
+      it( 'deleteAccount_twoStepResult should have property success', () => {
+        expect( deleteAccount_twoStepResult ).to.have.property( 'success' );
       });
 
       // Property Type
@@ -3124,8 +3109,8 @@ describe('Delete account', () => {
         expect( deleteAccount_twoStepResult.msg ).to.be.a( 'string' );
       });
 
-      it( 'deleteAccount_twoStepResult.result should be a boolean', () => {
-        expect( deleteAccount_twoStepResult.result ).to.be.a( 'boolean' );
+      it( 'deleteAccount_twoStepResult.success should be a boolean', () => {
+        expect( deleteAccount_twoStepResult.success ).to.be.a( 'boolean' );
       });
 
       // Return Value
@@ -3133,8 +3118,8 @@ describe('Delete account', () => {
         expect( deleteAccount_twoStepResult.msg ).to.equal( errMsg.accountNotFound );
       });
 
-      it( 'deleteAccount_twoStepResult.result should have value of true', () => {
-        expect( deleteAccount_twoStepResult.result ).to.equal( false );
+      it( 'deleteAccount_twoStepResult.success should have value of true', () => {
+        expect( deleteAccount_twoStepResult.success ).to.equal( false );
       });
 
     });
@@ -3150,12 +3135,12 @@ describe( 'Recover Account', () => {
     let badPhrase_recoveryPhraseResult;
     const badPhrase = '0000000000000000';
 
-    function recoverAccount( next ) {
-      accountModel.Update.recoverAccount( username, badPhrase, ( result ) => {
+    const recoverAccount = next => {
+      accountModel.Update.recoverAccount( username, badPhrase, result => {
         badPhrase_recoveryPhraseResult = result;
         next();
       });
-    }
+    };
 
     before( done => {
       recoverAccount( done );
@@ -3168,8 +3153,8 @@ describe( 'Recover Account', () => {
       expect( badPhrase_recoveryPhraseResult ).to.have.property( 'msg' );
     });
 
-    it( 'badPhrase_recoveryPhraseResult should have property result', () => {
-      expect( badPhrase_recoveryPhraseResult ).to.have.property( 'result' );
+    it( 'badPhrase_recoveryPhraseResult should have property success', () => {
+      expect( badPhrase_recoveryPhraseResult ).to.have.property( 'success' );
     });
 
     // Property Type
@@ -3177,8 +3162,8 @@ describe( 'Recover Account', () => {
       expect( badPhrase_recoveryPhraseResult.msg ).to.be.a( 'string' );
     });
 
-    it( 'badPhrase_recoveryPhraseResult.result should be a boolean', () => {
-      expect( badPhrase_recoveryPhraseResult.result ).to.be.a( 'boolean' );
+    it( 'badPhrase_recoveryPhraseResult.success should be a boolean', () => {
+      expect( badPhrase_recoveryPhraseResult.success ).to.be.a( 'boolean' );
     });
 
     // Return Value
@@ -3186,8 +3171,8 @@ describe( 'Recover Account', () => {
       expect( badPhrase_recoveryPhraseResult.msg ).to.equal( errMsg.recoveryFailed );
     });
 
-    it( 'badPhrase_recoveryPhraseResult.result should have value of false', () => {
-      expect( badPhrase_recoveryPhraseResult.result ).to.equal( false );
+    it( 'badPhrase_recoveryPhraseResult.success should have value of false', () => {
+      expect( badPhrase_recoveryPhraseResult.success ).to.equal( false );
     });
 
   });
@@ -3197,12 +3182,12 @@ describe( 'Recover Account', () => {
     let badUser_recoveryPhraseResult;
     const badUsername = 'badTestUser';
 
-    function recoverAccount( next ) {
-      accountModel.Update.recoverAccount( badUsername, 'anything', ( result ) => {
+    const recoverAccount = next => {
+      accountModel.Update.recoverAccount( badUsername, 'anything', result => {
         badUser_recoveryPhraseResult = result;
         next();
       });
-    }
+    };
 
     before( done => {
       recoverAccount( done );
@@ -3215,8 +3200,8 @@ describe( 'Recover Account', () => {
       expect( badUser_recoveryPhraseResult ).to.have.property( 'msg' );
     });
 
-    it( 'badUser_recoveryPhraseResult should have property result', () => {
-      expect( badUser_recoveryPhraseResult ).to.have.property( 'result' );
+    it( 'badUser_recoveryPhraseResult should have property success', () => {
+      expect( badUser_recoveryPhraseResult ).to.have.property( 'success' );
     });
 
     // Property Type
@@ -3224,8 +3209,8 @@ describe( 'Recover Account', () => {
       expect( badUser_recoveryPhraseResult.msg ).to.be.a( 'string' );
     });
 
-    it( 'badUser_recoveryPhraseResult.result should be a boolean', () => {
-      expect( badUser_recoveryPhraseResult.result ).to.be.a( 'boolean' );
+    it( 'badUser_recoveryPhraseResult.success should be a boolean', () => {
+      expect( badUser_recoveryPhraseResult.success ).to.be.a( 'boolean' );
     });
 
     // Return Value
@@ -3233,8 +3218,8 @@ describe( 'Recover Account', () => {
       expect( badUser_recoveryPhraseResult.msg ).to.equal( errMsg.recoveryFailed );
     });
 
-    it( 'badUser_recoveryPhraseResult.result should have value of false', () => {
-      expect( badUser_recoveryPhraseResult.result ).to.equal( false );
+    it( 'badUser_recoveryPhraseResult.success should have value of false', () => {
+      expect( badUser_recoveryPhraseResult.success ).to.equal( false );
     });
 
   });
@@ -3243,14 +3228,14 @@ describe( 'Recover Account', () => {
 
     let good_recoveryPhraseResult;
 
-    function recoverAccount( next ) {
-      accountModel.Update.recoverAccount( username, recoveryPhraseUser1, ( result ) => {
+    const recoverAccount = next => {
+      accountModel.Update.recoverAccount( username, recoveryPhraseUser1, result => {
         good_recoveryPhraseResult = result;
         next();
       });
-    }
+    };
 
-    before( ( done ) => {
+    before( done => {
       recoverAccount( done );
     });
 
@@ -3261,18 +3246,18 @@ describe( 'Recover Account', () => {
       expect( good_recoveryPhraseResult ).to.not.have.property( 'msg' );
     });
 
-    it( 'good_recoveryPhraseResult should have property result', () => {
-      expect( good_recoveryPhraseResult ).to.have.property( 'result' );
+    it( 'good_recoveryPhraseResult should have property success', () => {
+      expect( good_recoveryPhraseResult ).to.have.property( 'success' );
     });
 
     // Property Type
-    it( 'good_recoveryPhraseResult.result should be a boolean', () => {
-      expect( good_recoveryPhraseResult.result ).to.be.a( 'boolean' );
+    it( 'good_recoveryPhraseResult.success should be a boolean', () => {
+      expect( good_recoveryPhraseResult.success ).to.be.a( 'boolean' );
     });
 
     // Return Value
-    it( 'good_recoveryPhraseResult.result should have value of true', () => {
-      expect( good_recoveryPhraseResult.result ).to.equal( true );
+    it( 'good_recoveryPhraseResult.success should have value of true', () => {
+      expect( good_recoveryPhraseResult.success ).to.equal( true );
     });
 
   });
@@ -3333,5 +3318,5 @@ describe( 'Forgot password.', () => {
   });
 
 });
-*/
+
 /* */

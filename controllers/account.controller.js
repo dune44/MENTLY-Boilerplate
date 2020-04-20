@@ -225,35 +225,29 @@ const accountModel = {
     },
     Update: {
       email: ( uid, email, next ) => {
-            if( email ) {
-                if( !accountMethod.validateEmail( email ) ) {
-                    next({ "msg": errMsg.emailInvalid, "success": false });
-                } else {
-                    const q = N1qlQuery.fromString('UPDATE `' + process.env.BUCKET +
-                    '` SET email = "' + email + '" WHERE _type == "account" AND _id == "' +
-                    uid + '" AND `deleted` == false ');
-                    db.query(q, function(e, r, m) {
-                        if(e){
-                            console.log('error in accountModel.Update.email');
-                            console.log(e);
-                            next({ "error": e, "msg": errMsg.errorMsg, "success": false });
-                        }else{
-                            if( m.status == 'success' && m.metrics.mutationCount == 1 )
-                                next({ "success": true });
-                            else {
-                                if( r.length === 0 ) {
-                                    next({ "msg": errMsg.accountNotFound, "success": false });
-                                } else {
-                                    next({ "msg": errMsg.updateGenericFail, "success": false });
-                                }
-                            }
-                        }
-                    });
+        if ( email ) {
+          if ( !accountMethod.validateEmail( email ) ) {
+            next({ "msg": errMsg.emailInvalid, "success": false });
+          } else {
+            accountSchema.updateOne( { "_id": uid }, { "email": email }, ( e, r ) => {
+              if(e){
+                console.log('error in accountModel.Update.email');
+                console.log(e);
+                next({ "error": e, "msg": errMsg.errorMsg, "success": false });
+              }else{
+                if( r.nModified === 1 )
+                  next({ "success": true });
+                else {
+                  if( r.nModified === 0 ) next({ "msg": errMsg.accountNotFound, "success": false });
+                  else next({ "msg": errMsg.updateGenericFail, "success": false });
                 }
-            } else {
-                next({ "msg": 'Email cannot be blank', "success": false});
-            }
-        },
+              }
+            });
+          }
+        } else {
+          next({ "msg": 'Email cannot be blank', "success": false});
+        }
+      },
       generateQRCode: ( uid, next ) => {
           const secret = speakeasy.generateSecret();
           QRCode.toDataURL(secret.otpauth_url, function(e, data_url) {
@@ -269,7 +263,7 @@ const accountModel = {
               });
             }
           });
-        },
+      },
       passphraseProved: ( uid, phrase, next ) => {
           const qR = N1qlQuery.fromString('SELECT `recoveryPhrase` FROM `' + process.env.BUCKET +
           '` WHERE _type == "account" AND _id == "' + uid + '" ');
@@ -313,44 +307,35 @@ const accountModel = {
                   }
               }
           });
-        },
+      },
       password: ( uid, oldPassword, newPassword, next ) => {
-            if( accountMethod.validatePassword( newPassword ) ) {
-                accountMethod.getUserById( uid, false, ( account ) => {
-                    if( account.success ) {
-                        accountMethod.passwordCompare( oldPassword, account.data.password, ( compareResult ) => {
-                            if( compareResult ) {
-                                accountMethod.ink( newPassword, ( hash, inkMsg) => {
-                                    if( hash ) {
-                                        let q = N1qlQuery.fromString('UPDATE `' + process.env.BUCKET + '` SET `password` = $1 WHERE _type == "account" AND _id == "' + uid + '" ');
-                                        db.query(q, [hash], function(e, r, m) {
-                                            if(e){
-                                                console.log('error in accountModel.Update.password');
-                                                console.log(e);
-                                                next({ "error": e, "msg": errMsg.errorMsg, "success": false });
-                                            }else{
-                                                if( m.status == 'success' && m.metrics.mutationCount == 1 )
-                                                    next({ "success": true });
-                                                else
-                                                    next({ "msg": errMsg.updateGenericFail, "success": false });
-                                            }
-                                        });
-                                    } else {
-                                        next({ "msg": inkMsg, "success": false });
-                                    }
-                                });
-                            } else {
-                                next({ "msg": errMsg.accountValidationFailure, "success": false });
-                            }
-                        });
-                    } else {
-                        next( account );
+        if( accountMethod.validatePassword( newPassword ) ) {
+          accountMethod.getUserById( uid, false, ( account ) => {
+            if( account.success ) {
+              accountMethod.passwordCompare( oldPassword, account.data.password, ( compareResult ) => {
+                if( compareResult ) {
+                  accountSchema.updateOne( { "_id": uid }, { "password": newPassword}, ( e, r ) => {
+                    if(e){
+                      console.log('error in accountModel.Update.password');
+                      console.log(e);
+                      next({ "error": e, "msg": errMsg.errorMsg, "success": false });
+                    }else{
+                      if( r.nModified === 1 ) next({ "success": true });
+                      else next({ "msg": errMsg.updateGenericFail, "success": false });
                     }
-                });
+                  });
+                } else {
+                  next({ "msg": errMsg.accountValidationFailure, "success": false });
+                }
+              });
             } else {
-                next({ "msg": errMsg.passwordTooShort, "success": false });
+              next( account );
             }
-        },
+          });
+        } else {
+          next({ "msg": errMsg.passwordTooShort, "success": false });
+        }
+      },
       recoverAccount: ( username, recoveryPhrase, next ) => {
           const q = N1qlQuery.fromString('SELECT `recoveryPhrase`, `_id` FROM `' + process.env.BUCKET + '` WHERE _type == "account" AND `username` == "' + username + '" ');
           db.query(q, function(e, r) {
@@ -377,7 +362,7 @@ const accountModel = {
               }
             }
           });
-        },
+      },
       role: ( uid, role, next ) => {
         if( accountMethod.roleExists( role ) ) {
           accountModel.Read.accountById( uid, ( acct ) => {
@@ -428,7 +413,7 @@ const accountModel = {
                 }
 
             });
-        }
+      }
     },
     Delete: {
       accountSoftly: ( username, password, ips, twoAToken, next) => {
@@ -550,36 +535,32 @@ const accountMethod = {
         return roles.includes(role);
     },
     saveQR: ( uid, secret, next ) => {
-      const qU = N1qlQuery.fromString('UPDATE `' + process.env.BUCKET +
-      '` SET secret = "' + secret + '" WHERE _type == "account" AND _id == "' + uid + '" AND `deleted` == false ');
-      db.query(qU, function(e, r, m) {
-          if(e){
-              console.log('error in accountMethod.saveQR');
-              console.log(e);
-              next({ "error": e, "msg": errMsg.errorMsg, "success": false });
-          }else{
-              if( m.status == 'success' && m.metrics.mutationCount == 1 )
-                  next({ "success": true });
-              else
-                  next({ "msg": errMsg.updateGenericFail, "success": false });
-          }
+      accountSchema.updateOne( { "_id": uid }, { "secret": secret }, ( e, r ) => {
+        if ( e ){
+          console.log('error in accountMethod.saveQR');
+          console.log(e);
+          next({ "error": e, "msg": errMsg.errorMsg, "success": false });
+        }else{
+          if( r.nModified === 1 ) next({ "success": true });
+          else next({ "msg": errMsg.updateGenericFail, "success": false });
+        }
       });
+      //const qU = N1qlQuery.fromString('UPDATE `' + process.env.BUCKET +
+      //'` SET secret = "' + secret + '" WHERE _type == "account" AND _id == "' + uid + '" AND `deleted` == false ');
     },
     update2a: ( uid, twoA, next ) => {
-        let q = N1qlQuery.fromString('UPDATE `' + process.env.BUCKET + '` SET `enable2a` = ' +
-        twoA + ' WHERE _type == "account" AND _id == "' + uid + '" ');
-        db.query(q, function(e, r, m) {
-            if(e){
-                console.log('error in accountModel.accountMethod update2a.');
-                console.log(e);
-                next({ "error": e, "msg": errMsg.errorMsg, "success": false });
-            }else{
-                if( m.status === 'success' && m.metrics.mutationCount === 1 )
-                    next({ "success": true });
-                else
-                    next({ "msg": 'Not a successful update.', "success": false });
-            }
-        });
+      accountSchema.updateOne( { "_id": uid }, { "enable2a": twoA }, ( e, r ) => {
+        if(e){
+          h.log( file + ' => accountModel.accountMethod update2a.', e, next );
+        }else{
+          if( m.nModified === 1 ) next({ "success": true });
+          else if ( m.nModified === 1 ) next({ "success": false, "msg": errMsg.accountNotFound });
+          else next({ "msg": 'Not a successful update.', "success": false });
+        }
+      });
+      // let q = N1qlQuery.fromString('UPDATE `' + process.env.BUCKET + '` SET `enable2a` = ' +
+      // twoA + ' WHERE _type == "account" AND _id == "' + uid + '" ');
+      // db.query(q, function(e, r, m) {});
     },
     updateToken: ( uid, ips, next ) => {
         const token = jwt.sign({ _id: uid, ips }, process.env.JWT_SECRET,
