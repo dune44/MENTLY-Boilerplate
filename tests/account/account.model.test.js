@@ -2338,7 +2338,6 @@ describe( 'Update twoStep', () => {
 
 });
 
-/*
 describe( 'Login with 2A', () => {
 
   describe( 'Login in with No 2A code.', () => {
@@ -2558,6 +2557,7 @@ describe( 'Login with 2A', () => {
   });
 
 });
+/*
 
 describe('Delete account', () => {
 

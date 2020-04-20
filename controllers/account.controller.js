@@ -180,12 +180,12 @@ const accountModel = {
       validateAccount: ( username, password, ips, twoAToken, next ) => {
         accountMethod.getAccountByUsername( username, true, ( account ) => {
           if( account.success ) {
-            const twoAResult = ( account.data.twoAuth && account.data.twoAuth.enabled ) ? accountMethod.validate2a( account.data.secret, twoAToken ) : true;
+            const twoAResult = ( account.data.twoAuth && account.data.twoAuth.enabled ) ? accountMethod.validate2a( account.data.twoAuth.qrUri, twoAToken ) : true;
             if( twoAResult ) {
               accountMethod.passwordCompare( password, account.data.password, ( result ) => {
                 if( result ){
                   accountMethod.updateToken( account.data._id, ips, ( token ) => {
-                    console.log( 'token stored.' );
+                    // console.log( 'token stored.' );
                     next({ "success": result, "token": token });
                   });
                 } else {
@@ -194,7 +194,7 @@ const accountModel = {
               });
               
             } else {
-              console.log( 'enable2a ' + account.data.twoAuth.enabled );
+              // console.log( 'enable2a ' + account.data.twoAuth.enabled );
               next({ "msg": errMsg.accountValidationFailure, "success": false });
             }
           } else {
@@ -303,14 +303,18 @@ const accountModel = {
             if( account.success ) {
               accountMethod.passwordCompare( oldPassword, account.data.password, ( compareResult ) => {
                 if( compareResult ) {
-                  accountSchema.updateOne( { "_id": uid }, { "password": newPassword}, ( e, r ) => {
-                    if(e){
-                      console.log('error in accountModel.Update.password');
-                      console.log(e);
-                      next({ "error": e, "msg": errMsg.errorMsg, "success": false });
-                    }else{
-                      if( r.nModified === 1 ) next({ "success": true });
-                      else next({ "msg": errMsg.updateGenericFail, "success": false });
+                  accountMethod.ink( newPassword, ( hash, inkMsg ) => {
+                    if ( hash ) {
+                      accountSchema.updateOne( { "_id": uid }, { "password": hash }, ( e, r ) => {
+                        if(e){
+                          h.log( file + ' => accountModel.Update.password', e, next );
+                        }else{
+                          if( r.nModified === 1 ) next({ "success": true });
+                          else next({ "msg": errMsg.updateGenericFail, "success": false });
+                        }
+                      });
+                    } else {
+                      next({ "success": false, "msg": inkMsg });
                     }
                   });
                 } else {
@@ -318,8 +322,6 @@ const accountModel = {
                 }
               });
             } else {
-              console.log( 'account' );
-              console.log( account );
               next( account );
             }
           });
@@ -436,7 +438,7 @@ const accountModel = {
     }
 };
 // Non Public Methods
-pvtFields = '_id _type blocked deleted email username twoAuth.enabled password secret recovery';
+pvtFields = '_id _type blocked deleted email username twoAuth.enabled password twoAuth recovery';
 const accountMethod = {
     duplicateName: ( username, next ) => {
       accountModel.Read.accountByUsername( username, ( r ) => {
@@ -503,12 +505,8 @@ const accountMethod = {
     },
     passwordCompare: ( pwd, hash, next ) => {
       bcrypt.compare( pwd, hash, function( e, r ) {
-        if( e ) {
-          console.log(' Error accountMethod passwordCompare');
-          console.log( e );
-        } else {
-          next( r );
-        }
+        if( e ) h.log( file + ' => accountMethod passwordCompare', e, next );
+        else next( r );
       });
     },
     preValidateModel: ( account ) => {
@@ -535,18 +533,14 @@ const accountMethod = {
         return roles.includes(role);
     },
     saveQR: ( uid, secret, next ) => {
-      accountSchema.updateOne( { "_id": uid }, { "secret": secret }, ( e, r ) => {
+      accountSchema.updateOne( { "_id": uid }, { "twoAuth.qrUri": secret }, ( e, r ) => {
         if ( e ){
-          console.log('error in accountMethod.saveQR');
-          console.log(e);
-          next({ "error": e, "msg": errMsg.errorMsg, "success": false });
+          h.log( file + ' => accountMethod.saveQR', e, next);
         }else{
           if( r.nModified === 1 ) next({ "success": true });
           else next({ "msg": errMsg.updateGenericFail, "success": false });
         }
       });
-      //const qU = N1qlQuery.fromString('UPDATE `' + process.env.BUCKET +
-      //'` SET secret = "' + secret + '" WHERE _type == "account" AND _id == "' + uid + '" AND `deleted` == false ');
     },
     update2a: ( uid, twoA, next ) => {
       accountSchema.updateOne( { "_id": uid }, { "twoAuth.enabled": twoA }, ( e, r ) => {
@@ -555,9 +549,6 @@ const accountMethod = {
         } else {
           if( r.nModified === 1 ) next({ "success": true });
           else if ( !r || r.nModified === 0 ) {
-            console.log( uid );
-            console.log( twoA );
-            console.log( r );
             next({ "success": false, "msg": errMsg.accountNotFound });
           } else next({ "msg": 'Not a successful update.', "success": false });
         }
