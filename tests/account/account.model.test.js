@@ -1219,7 +1219,7 @@ describe( 'Account Model Read rolesById', () => {
         read_pop_RolesResult = result;
         next();
       });
-    }
+    };
 
     before( done => {
       read_pop_RolesByID( done );
@@ -2070,8 +2070,8 @@ describe( 'Process the recovery phrase.', () => {
     after( done => done() );
 
     // Property Exists
-    it( 'goodPassphraseProvedResult should have property result', () => {
-      expect( goodPassphraseProvedResult ).to.have.property( 'result' );
+    it( 'goodPassphraseProvedResult should have property success', () => {
+      expect( goodPassphraseProvedResult ).to.have.property( 'success' );
     });
 
     // Property Type
@@ -2338,6 +2338,7 @@ describe( 'Update twoStep', () => {
 
 });
 
+/*
 describe( 'Login with 2A', () => {
 
   describe( 'Login in with No 2A code.', () => {
@@ -3319,4 +3320,4 @@ describe( 'Forgot password.', () => {
 
 });
 
-/* */
+*/

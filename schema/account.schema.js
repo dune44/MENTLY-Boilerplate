@@ -41,7 +41,10 @@ const accountSchema = new Schema({
     },
     recovery: {
       phrase: String,
-      proved: Boolean
+      proved: {
+        default: false,
+        type: Boolean
+      }
     },
     roles: Array,
     secret: String,

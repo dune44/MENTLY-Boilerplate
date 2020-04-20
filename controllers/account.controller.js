@@ -126,26 +126,24 @@ const accountModel = {
           const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz`!@#$%^&*-_.';
           let phrase = '';
           for (var i = 0; i < 32; i++) {
-            phrase += chars.substr( Math.floor(Math.random() * chars.length), 1);
+            phrase += chars.substr( Math.floor( Math.random() * chars.length ), 1 );
           }
-          let q = N1qlQuery.fromString('UPDATE `' + process.env.BUCKET +
-          '` SET `recoveryPhrase` = $1 WHERE _type == "account" AND _id == "' +
-          uid + '" AND `deleted` == false ');
           accountMethod.ink( phrase, ( hash, inkMsg ) => {
-            db.query(q, [hash], function(e, r, m) {
-              if(e){
-                console.log('error in accountModel.Update.password');
-                console.log(e);
-                next({ "error": e, "msg": errMsg.errorMsg, "success": false });
-              }else{
-                if( m.status == 'success' && m.metrics.mutationCount == 1 )
-                  next( phrase );
-                else
-                  next({ "msg": errMsg.updateGenericFail, "success": false });
-              }
-            });
+            if( hash ) {
+              accountSchema.updateOne( { "_id": uid, "deleted": false }, { "recovery.phrase": hash }, ( e, r ) => {
+                if ( e ) {
+                  h.log( file + ' => accountModel.Update.password', e, next );
+                } else {
+                  if( r.nModified === 1 ) next( phrase );
+                  else next({ "msg": errMsg.updateGenericFail, "success": false });
+                }
+              });
+            } else {
+              console.log( inkMsg );
+              next({ "msg": inkMsg, "result": false });
+            }
           });
-        },
+      },
       rolesById: ( uid, next)  => {
         accountSchema.findById( uid, 'roles', ( e, r ) => {
           if(e){
@@ -182,7 +180,7 @@ const accountModel = {
       validateAccount: ( username, password, ips, twoAToken, next ) => {
         accountMethod.getAccountByUsername( username, true, ( account ) => {
           if( account.success ) {
-            const twoAResult = ( account.data.enable2a ) ? accountMethod.validate2a( account.data.secret, twoAToken ) : true;
+            const twoAResult = ( account.data.twoAuth && account.data.twoAuth.enabled ) ? accountMethod.validate2a( account.data.secret, twoAToken ) : true;
             if( twoAResult ) {
               accountMethod.passwordCompare( password, account.data.password, ( result ) => {
                 if( result ){
@@ -196,7 +194,7 @@ const accountModel = {
               });
               
             } else {
-              console.log( 'enable2a ' + account.data.enable2a );
+              console.log( 'enable2a ' + account.data.twoAuth.enabled );
               next({ "msg": errMsg.accountValidationFailure, "success": false });
             }
           } else {
@@ -221,7 +219,7 @@ const accountModel = {
               next({ "success": true, "expiresIn": timeLeft });
             }
           });
-        }
+      }
     },
     Update: {
       email: ( uid, email, next ) => {
@@ -265,48 +263,39 @@ const accountModel = {
           });
       },
       passphraseProved: ( uid, phrase, next ) => {
-          const qR = N1qlQuery.fromString('SELECT `recoveryPhrase` FROM `' + process.env.BUCKET +
-          '` WHERE _type == "account" AND _id == "' + uid + '" ');
-          db.query( qR, ( e, r ) => {
-              if(e){
-                  console.log('error in accountModel.Update.passphrase reading account.');
-                  console.log(e);
-                  next({ "msg": e, "success": false});
-              }else{
-                  if( r.length === 1 ) {
-                      accountMethod.passwordCompare( phrase, r[0].recoveryPhrase, ( result ) => {
-                        if( result ) {
-                          let qU = N1qlQuery.fromString('UPDATE `' + process.env.BUCKET +
-                          '` SET `recoveryPhraseProved` = true WHERE _type == "account" AND _id == "' +
-                          uid + '" AND `deleted` == false ');
-                          db.query(qU, function(e, r, m) {
-                              if(e){
-                                  console.log('error in accountModel.Update.passphraseProved');
-                                  console.log(e);
-                                  next({ "error": e, "msg": errMsg.errorMsg, "success": false });
-                              }else{
-                                  if( m.status == 'success' && m.metrics.mutationCount === 1 ) {
-                                      next({ "success": true });
-                                  } else {
-                                      if( r.length === 0 ) {
-                                          next({ "msg": errMsg.accountNotFound, "success": false });
-                                      } else {
-                                          next({ "msg": errMsg.updateGenericFail, "success": false });
-                                      }
-                                  }
-                              }
-                          });
+        accountSchema.findOne( { "_id": uid }, ( e, r ) => {
+          if ( e ) {
+            h.log( file + ' => accountModel.Update.passphrase reading account.', e, next );
+          } else {
+            if ( r && r.recovery ) {
+              accountMethod.passwordCompare( phrase, r.recovery.phrase, ( result ) => {
+                if ( result ) {
+                  accountSchema.updateOne( { "_id": uid, "deleted": false}, { "recovery.proved": true }, ( e, r ) => {
+                    if ( e ) {
+                      h.log( file + ' => accountModel.Update.passphraseProved', e, next );
+                    } else {
+                      if ( r.nModified === 1 ) {
+                        next({ "success": true });
+                      } else {
+                        if( r.length === 0 ) {
+                          next({ "msg": errMsg.accountNotFound, "success": false });
                         } else {
-                          next({ "msg": errMsg.accountValidationFailure, "success": false });
+                          next({ "msg": errMsg.updateGenericFail, "success": false });
                         }
-                      });
-                  } else if( r.length === 0 ) {
-                    next({ "msg": errMsg.accountNotFound, "success": false });
-                  } else {
-                    next({ "msg": 'Unexpected result', "success": false });
-                  }
-              }
-          });
+                      }
+                    }
+                  });
+                } else {
+                  next({ "msg": errMsg.accountValidationFailure, "success": false });
+                }
+              });
+            } else if( !r || r.length === 0 ) {
+              next({ "msg": errMsg.accountNotFound, "success": false });
+            } else {
+              next({ "msg": 'Unexpected result', "success": false });
+            }
+          }
+        });
       },
       password: ( uid, oldPassword, newPassword, next ) => {
         if( accountMethod.validatePassword( newPassword ) ) {
@@ -329,6 +318,8 @@ const accountModel = {
                 }
               });
             } else {
+              console.log( 'account' );
+              console.log( account );
               next( account );
             }
           });
@@ -386,33 +377,31 @@ const accountModel = {
         }
       },
       twoStep: ( uid, token, twoA, next ) => {
-            accountMethod.getUserById( uid, false, ( account ) => {
-                if( account.success ){
-                    if( account.data.recoveryPhraseProved ) {
-                        if( account.data.enable2a != twoA && account.data.enable2a ) {
-                          accountMethod.validate2a( account.data.secret, token, ( validated ) => {
-                            if( validated ) {
-                              accountMethod.update2a( uid, twoA, ( resultObj ) => {
-                                next( resultObj );
-                              });
-                            } else {
-                              next({ "msg": errMsg.accountValidationFailure, "success": false});
-                            }
-                          });
-                        } else {
-                          accountMethod.update2a( uid, twoA, ( resultObj ) => {
-                            next( resultObj );
-                          });
-                        }
-                      } else {
-
-                        next({ "msg": errMsg.recoveryPhraseNotProved, "success": false });
-                      }
-                } else {
-                    next({ "msg": errMsg.accountNotFound, "success": false });
-                }
-
-            });
+        accountMethod.getUserById( uid, false, account => {
+          if( account.success ){
+            if( account.data.recovery.proved ) {
+              if( account.data.twoAuth && account.data.twoAuth.enabled && account.data.enabled.enabled != twoA ) {
+                accountMethod.validate2a( account.data.secret, token, validated => {
+                  if( validated ) {
+                    accountMethod.update2a( uid, twoA, resultObj => {
+                      next( resultObj );
+                    });
+                  } else {
+                    next({ "msg": errMsg.accountValidationFailure, "success": false});
+                  }
+                });
+              } else {
+                accountMethod.update2a( uid, twoA, resultObj => {
+                  next( resultObj );
+                });
+              }
+            } else {
+              next({ "msg": errMsg.recoveryPhraseNotProved, "success": false });
+            }
+          } else {
+            next({ "msg": errMsg.accountNotFound, "success": false });
+          }
+        });
       }
     },
     Delete: {
@@ -447,7 +436,7 @@ const accountModel = {
     }
 };
 // Non Public Methods
-pvtFields = '_id _type blocked deleted email username enable2a password secret recoveryPhrase recoveryPhraseProved';
+pvtFields = '_id _type blocked deleted email username twoAuth.enabled password secret recovery';
 const accountMethod = {
     duplicateName: ( username, next ) => {
       accountModel.Read.accountByUsername( username, ( r ) => {
@@ -465,21 +454,15 @@ const accountMethod = {
     getUserById: ( uid, allowDeleted, next ) => {
       let params = { _id: uid };
       if( !allowDeleted ) params.deleted = false;
-      accountSchema.find( params, pvtFields, ( e, r ) => {
+      accountSchema.findOne( params, pvtFields, ( e, r ) => {
         if(e){
           h.log( file + ' => accountMethod.getUserById', e, next );
-          next({ "error": e, "msg": errMsg.errorMsg, "success": false });
         }else{
-          if( r.length === 1)
-            next({ "data": r[0], "success": true });
-          else if( r.length === 0 )
-            next({ "msg": errMsg.accountNotFound, "success": false });
-          else
-            next({ "msg": errMsg.errorMsg, "success": false });
+          if( r && r.recovery ) next({ "data": r, "success": true });
+          else if( !r || r.length === 0 ) next({ "msg": errMsg.accountNotFound, "success": false });
+          else next({ "msg": errMsg.errorMsg, "success": false });
         }
       });
-      // let query = 'SELECT ' + this.fields + ' FROM `' + process.env.BUCKET + '` WHERE _type == "account" AND _id == "' + uid + '" ';
-      // if( !allowDeleted ) query += ' AND `deleted` == false ';
     },
     getAccountByUsername: ( username, deleted, next ) => {
       let params = { "username": username };
@@ -496,6 +479,23 @@ const accountMethod = {
           else
             next({ "msg": errMsg.errorMsg, "success": false });
         }
+      });
+    },
+    ink: ( password, next ) => {
+      bcrypt.genSalt( 5, function( e, salt ) {
+          if( e ) {
+              console.error( e );
+              next( false, e );
+          } else {
+              bcrypt.hash( password, salt, function( er, hash ) {
+                  if( er ) {
+                      console.error( er );
+                      next( false, er );
+                  }else{
+                      next( hash, null );
+                  }
+              });
+          }
       });
     },
     isVal: ( value ) => {
@@ -549,18 +549,19 @@ const accountMethod = {
       //'` SET secret = "' + secret + '" WHERE _type == "account" AND _id == "' + uid + '" AND `deleted` == false ');
     },
     update2a: ( uid, twoA, next ) => {
-      accountSchema.updateOne( { "_id": uid }, { "enable2a": twoA }, ( e, r ) => {
-        if(e){
+      accountSchema.updateOne( { "_id": uid }, { "twoAuth.enabled": twoA }, ( e, r ) => {
+        if ( e ) {
           h.log( file + ' => accountModel.accountMethod update2a.', e, next );
-        }else{
-          if( m.nModified === 1 ) next({ "success": true });
-          else if ( m.nModified === 1 ) next({ "success": false, "msg": errMsg.accountNotFound });
-          else next({ "msg": 'Not a successful update.', "success": false });
+        } else {
+          if( r.nModified === 1 ) next({ "success": true });
+          else if ( !r || r.nModified === 0 ) {
+            console.log( uid );
+            console.log( twoA );
+            console.log( r );
+            next({ "success": false, "msg": errMsg.accountNotFound });
+          } else next({ "msg": 'Not a successful update.', "success": false });
         }
       });
-      // let q = N1qlQuery.fromString('UPDATE `' + process.env.BUCKET + '` SET `enable2a` = ' +
-      // twoA + ' WHERE _type == "account" AND _id == "' + uid + '" ');
-      // db.query(q, function(e, r, m) {});
     },
     updateToken: ( uid, ips, next ) => {
         const token = jwt.sign({ _id: uid, ips }, process.env.JWT_SECRET,
