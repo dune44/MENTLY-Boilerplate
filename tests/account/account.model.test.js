@@ -2557,7 +2557,6 @@ describe( 'Login with 2A', () => {
   });
 
 });
-/*
 
 describe('Delete account', () => {
 
@@ -3128,6 +3127,7 @@ describe('Delete account', () => {
   });
 
 });
+/*
 
 describe( 'Recover Account', () => {
 

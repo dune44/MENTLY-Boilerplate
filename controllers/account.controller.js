@@ -58,17 +58,18 @@ const accountModel = {
     Read: {
       accountById: ( uid, next ) => {
         try {
-          accountSchema.findById( uid, fields, ( e, r ) => {
+          accountSchema.find( { "_id": uid, "deleted": false }, fields, ( e, r ) => {
             if ( e ) {
               h.log( file + ' => error in accountModel.Read.accountById', e, e.errors );
             } else {
-              if ( r ) {
+              if ( r && r.length === 1 ) {
+                const account = r[0];
                 const result = {
-                  "_id": r._id.toString(),
-                  "blocked": r.blocked,
-                  "deleted": r.deleted,
-                  "email": r.email,
-                  "username": r.username
+                  "_id": account._id.toString(),
+                  "blocked": account.blocked,
+                  "deleted": account.deleted,
+                  "email": account.email,
+                  "username": account.username
                 };
                 next({ "data": result, "success": true });
               } else {
@@ -81,7 +82,7 @@ const accountModel = {
         }
       },
       accountByUsername: ( username, next ) => {
-        accountSchema.find( { "username": username }, fields, ( e, r ) => {
+        accountSchema.find( { "username": username, "deleted": false }, fields, ( e, r ) => {
           if ( e ) {
             h.log( file + ' => accountModel.Read.accountById', e);
             return e;
@@ -101,7 +102,7 @@ const accountModel = {
         });
       },
       all: ( next ) => {
-        accountSchema.find( {}, fields, ( e, r ) => {
+        accountSchema.find( { "deleted": false }, fields, ( e, r ) => {
           if ( e ) {
             h.log( file + ' => accountModel.Read.accountById', e);
             return e;
@@ -227,7 +228,7 @@ const accountModel = {
           if ( !accountMethod.validateEmail( email ) ) {
             next({ "msg": errMsg.emailInvalid, "success": false });
           } else {
-            accountSchema.updateOne( { "_id": uid }, { "email": email }, ( e, r ) => {
+            accountSchema.updateOne( { "_id": uid, "deleted": false }, { "email": email }, ( e, r ) => {
               if(e){
                 console.log('error in accountModel.Update.email');
                 console.log(e);
@@ -263,7 +264,7 @@ const accountModel = {
           });
       },
       passphraseProved: ( uid, phrase, next ) => {
-        accountSchema.findOne( { "_id": uid }, ( e, r ) => {
+        accountSchema.findOne( { "_id": uid, "deleted": false }, ( e, r ) => {
           if ( e ) {
             h.log( file + ' => accountModel.Update.passphrase reading account.', e, next );
           } else {
@@ -410,19 +411,12 @@ const accountModel = {
       accountSoftly: ( username, password, ips, twoAToken, next) => {
           accountModel.Read.validateAccount( username, password, ips, twoAToken, ( result ) => {
             if( result.success ) {
-              const qU = N1qlQuery.fromString('UPDATE `' + process.env.BUCKET +
-              '` SET deleted = true WHERE _type == "account" AND `username` == "' + username + '" ');
-              db.query(qU, function(e, r, m) {
+              accountSchema.updateOne( { "username": username }, { "deleted": true }, (e, r ) => {
                 if(e){
-                  console.log('error in accountModel.Delete.accountSoftly');
-                  console.log(e);
-                  next({ "error": e, "msg": errMsg.errorMsg, "success": false });
+                  h.log( file + ' => accountModel.Delete.accountSoftly', e, next );
                 }else{
-                  if( m.status == 'success' && m.metrics.mutationCount === 1 ) {
-                    next({ "success": true });
-                  } else {
-                    next({ "msg": errMsg.updateGenericFail, "success": false });
-                  }
+                  if( r && r.nModified === 1 ) next({ "success": true });
+                  else next({ "msg": errMsg.updateGenericFail, "success": false });
                 }
               });
             } else {
@@ -533,7 +527,7 @@ const accountMethod = {
         return roles.includes(role);
     },
     saveQR: ( uid, secret, next ) => {
-      accountSchema.updateOne( { "_id": uid }, { "twoAuth.qrUri": secret }, ( e, r ) => {
+      accountSchema.updateOne( { "_id": uid, "deleted": false }, { "twoAuth.qrUri": secret }, ( e, r ) => {
         if ( e ){
           h.log( file + ' => accountMethod.saveQR', e, next);
         }else{
