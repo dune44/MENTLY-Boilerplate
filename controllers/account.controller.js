@@ -58,7 +58,6 @@ const accountModel = {
     Read: {
       accountById: ( uid, next ) => {
         try {
-          // console.log( 'uid ' + uid );
           accountSchema.findById( uid, fields, ( e, r ) => {
             if ( e ) {
               h.log( file + ' => error in accountModel.Read.accountById', e, e.errors );
@@ -75,11 +74,6 @@ const accountModel = {
               } else {
                 next({ "msg": errMsg.accountNotFound, "success": false });
               } 
-              // else {
-              //   console.log( 'Unexpected result' );
-              //   console.log( r );
-              //   next({ "msg": 'Unexpected result', "success": false });
-              // }
             }
           });
         } catch ( error ) {
@@ -166,30 +160,25 @@ const accountModel = {
         });
       },
       isInRole: ( uid, role, next ) => {
-            if( accountMethod.roleExists( role ) ) {
-                const q = N1qlQuery.fromString('SELECT `roles` FROM `' + process.env.BUCKET +
-                '` WHERE _type == "account" AND _id == "' + uid + '" ');
-                db.query(q, (e, r) => {
-                    if(e){
-                        console.log('error in accountModel.Read.accountById');
-                        console.log(e);
-                        next({ "msg": e, "success": false});
-                    }else{
-                        if( r.length === 1 ) {
-                            const roles = ( r[0].roles ) ? r[0].roles : [] ;
-                            const result = roles.includes(role);
-                            next({ "result": result });
-                        } else if( r.length === 0 ) {
-                            next({ "msg": errMsg.accountNotFound, "success": false });
-                        } else {
-                            next({ "msg": 'Unexpected result', "success": false });
-                        }
-                    }
-                });
-            } else {
-                next({ "msg": errMsg.roleInvalid, "success": false });
+        if( accountMethod.roleExists( role ) ) {
+          accountSchema.findById( uid, ( e, r ) => {
+            if(e){
+              h.log( file + ' => accountModel.Read.accountById', e, next);
+            }else{
+              if( r ) {
+                  const result = r.roles.includes( role );
+                  next({ "success": result });
+              } else if( !r || r.length === 0 ) {
+                  next({ "msg": errMsg.accountNotFound, "success": false });
+              } else {
+                  next({ "msg": 'Unexpected result', "success": false });
+              }
             }
-        },
+          });
+        } else {
+          next({ "msg": errMsg.roleInvalid, "success": false });
+        }
+      },
       validateAccount: ( username, password, ips, twoAToken, next ) => {
         accountMethod.getAccountByUsername( username, true, ( account ) => {
           if( account.success ) {
