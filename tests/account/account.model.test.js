@@ -1,31 +1,30 @@
 const accountSchema = require( './../../schema/account.schema' );
 const accountModel = require( './../../controllers/account.controller' );
 const chai = require( 'chai' );
+const mongoose = require('mongoose');
 const dirtyChai = require( 'dirty-chai' );
 const { authenticator } = require( 'otplib' );
 const expect = chai.expect;
 const roles = require( './../../config/roles' );
-const { v4: uuidv4 } = require( 'uuid' );
 chai.use(dirtyChai);
 
-/*
-Test Template
+/* Test Template
 
-describe( '', () => {
+  describe( '', () => {
 
-  before( ( done ) => {
-    done();
+    before( ( done ) => {
+      done();
+    });
+
+    after( done => done() );
+
+    // Property Exists
+
+    // Property Type
+
+    // Return Value
+
   });
-
-  after( done => done() );
-
-  // Property Exists
-
-  // Property Type
-
-  // Return Value
-
-});
 */
 
 const errMsg = require('./../../controllers/account.errMsg');
@@ -109,7 +108,7 @@ const password = '1A2b6O!b';
 const passwordUpdated = 'nm%o&z8Afy*m';
 const username2 = 'testUser2';
 const password2 = 'A!3k90P2';
-const badUID = uuidv4();
+const badUID = mongoose.Types.ObjectId("5e9cb30627ad170d3dbf4b3d");
 const badRole = 'MasterBlasterEatsMitosis';
 const fauxIPS = { "ip": "10.0.0.0", "fwdIP": "5.0.0.0" };
 
@@ -419,7 +418,7 @@ describe( 'Account Model Create a second user', () => {
       testAccount2UID = goodResult.data._id;
       next();
     });
-  }
+  };
 
   before( ( done ) => {
     initializeSecondAccount( done );
@@ -634,63 +633,62 @@ describe( 'Account Model Read accountByUsername', () => {
   });
 
 });
-/*
+
 describe( 'Account Model Read accountById', () => {
 
   describe( 'Read Account with Good UID.', () => {
 
     let readAccountByIDResult;
 
-    function readTestAccountByUID( next ){
+    const readTestAccountByUID = next => {
       accountModel.Read.accountById( testAccountUID, ( result ) => {
         readAccountByIDResult = result;
         next();
       });
-    }
+    };
 
-      before( ( done ) => {
+      before( done => {
           readTestAccountByUID( done );
       });
 
-      after( ( done ) => {
-          done();
-      });
+      after( done => done() );
 
       // Property Exists
+      it('readAccountByIDResult should NOT return property data.password', () => {
+        expect(readAccountByIDResult.data).to.not.have.property('password');
+      });
+
+      it('readAccountByIDResult should NOT return property msg', () => {
+        expect(readAccountByIDResult).to.not.have.property('msg');
+      });
+
+
       it('readAccountByIDResult should return property data', () => {
           expect(readAccountByIDResult).to.have.property('data');
       });
 
-      it('readAccountByIDResult should return property data._id', () => {
+      it('readAccountByIDResult.data should return property _id', () => {
           expect(readAccountByIDResult.data).to.have.property('_id');
       });
 
-      it('readAccountByIDResult should return property data.blocked', () => {
+      it('readAccountByIDResult.data should return property blocked', () => {
           expect(readAccountByIDResult.data).to.have.property('blocked');
       });
 
-      it('readAccountByIDResult should return property data.deleted', () => {
+      it('readAccountByIDResult.data should return property deleted', () => {
           expect(readAccountByIDResult.data).to.have.property('deleted');
       });
 
-      it('readAccountByIDResult should return property data.email', () => {
+      it('readAccountByIDResult.data should return property email', () => {
           expect(readAccountByIDResult.data).to.have.property('email');
       });
 
-      it('readAccountByIDResult should NOT return property data.password', () => {
-          expect(readAccountByIDResult.data).to.not.have.property('password');
-      });
-
-      it('readAccountByIDResult should return property data.username', () => {
+      it('readAccountByIDResult.data should return property username', () => {
           expect(readAccountByIDResult.data).to.have.property('username');
       });
 
-      it('readAccountByIDResult should NOT return property msg', () => {
-          expect(readAccountByIDResult).to.not.have.property('msg');
-      });
-
-      it('readAccountByIDResult should return property result', () => {
-          expect(readAccountByIDResult).to.have.property('result');
+      it('readAccountByIDResult should return property success', () => {
+          expect(readAccountByIDResult).to.have.property('success');
       });
 
       // Property Type
@@ -714,13 +712,13 @@ describe( 'Account Model Read accountById', () => {
           expect( readAccountByIDResult.data.username ).to.be.a( 'string' );
       });
 
-      it( 'readAccountByIDResult result should be a boolean', () => {
-          expect( readAccountByIDResult.result ).to.be.a( 'boolean' );
+      it( 'readAccountByIDResult success should be a boolean', () => {
+          expect( readAccountByIDResult.success ).to.be.a( 'boolean' );
       });
 
       // Return Value
-      it( 'readAccountByIDResult result should have result of true', () => {
-          expect( readAccountByIDResult.result ).to.equal( true );
+      it( 'readAccountByIDResult success should have result of true', () => {
+          expect( readAccountByIDResult.success ).to.equal( true );
       });
 
   });
@@ -729,20 +727,18 @@ describe( 'Account Model Read accountById', () => {
 
     let readBadUIDAccountResult;
 
-    function badUID_readAccountByID( next ) {
+    const badUID_readAccountByID = next => {
       accountModel.Read.accountById( badUID, ( result ) => {
         readBadUIDAccountResult = result;
         next();
       });
-    }
+    };
 
     before( ( done ) => {
       badUID_readAccountByID( done );
     });
 
-    after( ( done ) => {
-      done();
-    });
+    after( done => done() );
 
     // Property Exists
     it( 'readBadUIDAccountResult should NOT contain property data', () => {
@@ -753,8 +749,8 @@ describe( 'Account Model Read accountById', () => {
       expect( readBadUIDAccountResult ).to.have.property( 'msg' );
     });
 
-    it( 'readBadUIDAccountResult should contain property result', () => {
-      expect( readBadUIDAccountResult ).to.have.property( 'result' );
+    it( 'readBadUIDAccountResult should contain property success', () => {
+      expect( readBadUIDAccountResult ).to.have.property( 'success' );
     });
 
     // Property Type
@@ -762,8 +758,8 @@ describe( 'Account Model Read accountById', () => {
         expect( readBadUIDAccountResult.msg ).to.be.a( 'string' );
     });
 
-    it( 'readBadUIDAccountResult result id should be a boolean', () => {
-        expect( readBadUIDAccountResult.result ).to.be.a( 'boolean' );
+    it( 'readBadUIDAccountResult success id should be a boolean', () => {
+        expect( readBadUIDAccountResult.success ).to.be.a( 'boolean' );
     });
 
     // Return Value
@@ -771,8 +767,8 @@ describe( 'Account Model Read accountById', () => {
         expect( readBadUIDAccountResult.msg ).to.equal( errMsg.accountNotFound );
     });
 
-    it( 'readBadUIDAccountResult result should have value of false', () => {
-        expect( readBadUIDAccountResult.result ).to.equal( false );
+    it( 'readBadUIDAccountResult success should have value of false', () => {
+        expect( readBadUIDAccountResult.success ).to.equal( false );
     });
 
   });
@@ -783,37 +779,48 @@ describe( 'Account Model Read All', () => {
 
   let readAllResult;
 
-  function readAllAccounts( next ) {
+  const readAllAccounts = next => {
       accountModel.Read.all( ( result ) => {
         readAllResult = result;
         next();
       });
-  }
+  };
 
   before( ( done ) => {
     readAllAccounts( done );
   });
 
-  after( ( done ) => {
-    done();
-  });
+  after( done => done() );
 
   // Property Exists
+  it( 'readAllResult.data should NOT have property password', () => {
+    expect( readAllResult.data ).to.have.not.property( 'password' );
+  });
+
   it( 'readAllResult should NOT have property msg', () => {
-    expect(readAllResult).to.have.not.property('msg');
+    expect( readAllResult ).to.have.not.property( 'msg' );
   });
 
   it('readAllResult should have property data', () => {
-      expect(readAllResult).to.have.property('data');
+      expect( readAllResult ).to.have.property( 'data' );
   });
 
-  it('readAllResult should have property result', () => {
-      expect(readAllResult).to.have.property('result');
+  it('readAllResult should have property success', () => {
+      expect( readAllResult ).to.have.property( 'success' );
   });
 
   // Property Type
   it( 'readAllResult data should be an Array', () => {
       expect( readAllResult.data ).to.be.a( 'array' );
+  });
+
+  // Return Value
+  it( 'readAllResult.data should be have length of 2', () => {
+    expect( readAllResult.data.length ).to.equal( 2 );
+  });
+
+  it( 'readAllResult success should be an true', () => {
+    expect( readAllResult.success ).to.equal( true );
   });
 
 });
@@ -824,13 +831,13 @@ describe( 'Account Model Read Validate Credentials', () => {
 
     let badUsernameLoginResult;
 
-    function attemptBadUidLogin( next ) {
+    const attemptBadUidLogin = next => {
       const passwordForBadLogin = "85Ie!ki49p";
       accountModel.Read.validateAccount( 'badUsername', passwordForBadLogin, fauxIPS, null, ( result ) => {
         badUsernameLoginResult = result;
         next();
       });
-    }
+    };
 
     before( done => {
       attemptBadUidLogin( done );
@@ -847,8 +854,8 @@ describe( 'Account Model Read Validate Credentials', () => {
       expect( badUsernameLoginResult ).to.not.have.property( 'token' );
     });
 
-    it( 'badUsernameLoginResult should have property result', () => {
-      expect( badUsernameLoginResult ).to.have.property( 'result' );
+    it( 'badUsernameLoginResult should have property success', () => {
+      expect( badUsernameLoginResult ).to.have.property( 'success' );
     });
 
     it( 'badUsernameLoginResult should have property msg', () => {
@@ -856,8 +863,8 @@ describe( 'Account Model Read Validate Credentials', () => {
     });
 
     // Property Type -- ( badUsernameLoginResult )
-    it( 'badUsernameLoginResult result should be a boolean', () => {
-      expect( badUsernameLoginResult.result ).to.be.a( 'boolean' );
+    it( 'badUsernameLoginResult.success should be a boolean', () => {
+      expect( badUsernameLoginResult.success ).to.be.a( 'boolean' );
     });
 
     it( 'badUsernameLoginResult msg should be a string', () => {
@@ -865,8 +872,8 @@ describe( 'Account Model Read Validate Credentials', () => {
     });
 
     // Return Value -- ( badUsernameLoginResult )
-    it( 'badUsernameLoginResult result should have value of false', () => {
-      expect( badUsernameLoginResult.result ).to.equal( false );
+    it( 'badUsernameLoginResult.success should have value of false', () => {
+      expect( badUsernameLoginResult.success ).to.equal( false );
     });
 
     it( 'badUsernameLoginResult msg should have value of errMsg.accountNotFound', () => {
@@ -879,13 +886,13 @@ describe( 'Account Model Read Validate Credentials', () => {
 
     let badPasswordLoginResult;
 
-    function attemptBadPasswordLogin( next ) {
+    const attemptBadPasswordLogin = next => {
       const BadPassword = "2M@55iP931p";
       accountModel.Read.validateAccount( username, BadPassword, fauxIPS, null, ( result ) => {
         badPasswordLoginResult = result;
         next();
       });
-    }
+    };
 
     before( ( done ) => {
         attemptBadPasswordLogin( done );
@@ -902,8 +909,8 @@ describe( 'Account Model Read Validate Credentials', () => {
       expect( badPasswordLoginResult ).to.not.have.property( 'token' );
     });
 
-    it( 'badPasswordLoginResult should have property result', () => {
-      expect( badPasswordLoginResult ).to.have.property( 'result' );
+    it( 'badPasswordLoginResult should have property success', () => {
+      expect( badPasswordLoginResult ).to.have.property( 'success' );
     });
 
     it( 'badPasswordLoginResult should have property msg', () => {
@@ -911,8 +918,8 @@ describe( 'Account Model Read Validate Credentials', () => {
     });
 
     // Property Type -- ( badPasswordLoginResult )
-    it( 'badPasswordLoginResult result should be a boolean', () => {
-      expect( badPasswordLoginResult.result ).to.be.a( 'boolean' );
+    it( 'badPasswordLoginResult.success should be a boolean', () => {
+      expect( badPasswordLoginResult.success ).to.be.a( 'boolean' );
     });
 
     it( 'badPasswordLoginResult msg should be a string', () => {
@@ -920,8 +927,8 @@ describe( 'Account Model Read Validate Credentials', () => {
     });
 
     // Return Value -- ( badPasswordLoginResult )
-    it( 'badPasswordLoginResult result should have value of false', () => {
-      expect( badPasswordLoginResult.result ).to.equal( false );
+    it( 'badPasswordLoginResult.success should have value of false', () => {
+      expect( badPasswordLoginResult.success ).to.equal( false );
     });
 
     it( 'badPasswordLoginResult msg should have value of var accountValidationFailure', () => {
@@ -934,13 +941,13 @@ describe( 'Account Model Read Validate Credentials', () => {
 
     let  goodLoggingResult;
 
-    function attemptGoodLogin( next ) {
+    const attemptGoodLogin = next => {
       accountModel.Read.validateAccount( username, password, fauxIPS, null, ( result ) => {
         validationToken = result.token;
         goodLoggingResult = result;
         next();
       });
-    }
+    };
 
     before( ( done ) => {
       attemptGoodLogin( done );
@@ -957,8 +964,8 @@ describe( 'Account Model Read Validate Credentials', () => {
       expect( goodLoggingResult ).to.not.have.property( 'msg' );
     });
 
-    it( 'goodLoggingResult should have property result', () => {
-      expect( goodLoggingResult ).to.have.property( 'result' );
+    it( 'goodLoggingResult should have property success', () => {
+      expect( goodLoggingResult ).to.have.property( 'success' );
     });
 
     it( 'goodLoggingResult should have property token', () => {
@@ -966,8 +973,8 @@ describe( 'Account Model Read Validate Credentials', () => {
     });
 
     // Property Type -- ( goodLoggingResult )
-    it( 'goodLoggingResult result should be a boolean', () => {
-      expect( goodLoggingResult.result ).to.be.a( 'boolean' );
+    it( 'goodLoggingResult.success should be a boolean', () => {
+      expect( goodLoggingResult.success ).to.be.a( 'boolean' );
     });
 
     it( 'goodLoggingResult token should be a string', () => {
@@ -975,13 +982,14 @@ describe( 'Account Model Read Validate Credentials', () => {
     });
 
     // Return Value -- ( goodLoggingResult )
-    it( 'goodLoggingResult result should have value of true', () => {
-      expect( goodLoggingResult.result ).to.equal( true );
+    it( 'goodLoggingResult.success should have value of true', () => {
+      expect( goodLoggingResult.success ).to.equal( true );
     });
 
   });
 
 });
+
 
 describe( 'Account Model Read Token Operations', () => {
 
@@ -1015,8 +1023,8 @@ describe( 'Account Model Read Token Operations', () => {
         expect( decodedToken ).to.not.have.property( 'msg' );
     });
 
-    it( 'decodedToken should have property result', () => {
-        expect( decodedToken ).to.have.property( 'result' );
+    it( 'decodedToken should have property success', () => {
+        expect( decodedToken ).to.have.property( 'success' );
     });
 
     it( 'decodedToken should have property expiresIn', () => {
@@ -1033,9 +1041,13 @@ describe( 'Account Model Read Token Operations', () => {
       expect( decodedToken.expiresIn ).to.be.a( 'string' );
     });
 
+    it( 'decodedToken.success should be a boolean', () => {
+      expect( decodedToken.success ).to.be.a( 'boolean' );
+    });
+
     // Return Value -- ( decodedToken )
-    it( 'decodedToken result should have value of true', () => {
-        expect( decodedToken.result ).to.equal( true );
+    it( 'decodedToken success should have value of true', () => {
+        expect( decodedToken.success ).to.equal( true );
     });
 
     it( 'decodedToken expiresIn should have value equal to var expiresInDefault: '+ expiresInDefault, () => {
@@ -1198,7 +1210,7 @@ describe( 'Account Model Update role', () => {
   });
 
 });
-
+/* 
 describe( 'Account Model Read rolesById', () => {
 
   describe( 'Read populated Roles with Good UID', () => {
@@ -3334,5 +3346,5 @@ describe( 'Forgot password.', () => {
   });
 
 });
-
 */
+/* */

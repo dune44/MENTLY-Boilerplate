@@ -87,10 +87,6 @@ accountSchema.pre( 'save', function( next ) {
   }
 });
 
-// accountSchema.pre( 'save', function( next ) {
-// });
-
-
 const private = {
   ink: ( password, next ) => {
     bcrypt.genSalt( 5, ( error, salt ) => {

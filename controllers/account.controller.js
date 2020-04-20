@@ -1,5 +1,6 @@
 const h = require( './helper.controller' );
 const accountSchema = require('./../schema/account.schema');
+const bcrypt = require( 'bcryptjs' );
 const jwt = require( 'jsonwebtoken' );
 const moment = require( 'moment' );
 const speakeasy = require( 'speakeasy' );
@@ -56,19 +57,34 @@ const accountModel = {
     },
     Read: {
       accountById: ( uid, next ) => {
-        accountSchema.findById( uid, ( e, r ) => {
-          if ( e ) {
-            h.log( file + ' => error in accountModel.Read.accountById', e, next );
-          } else {
-              if ( r.length === 1 ) {
-                  next({ "data": r[0], "success": true });
-              } else if( r.length === 0 ) {
-                  next({ "msg": errMsg.accountNotFound, "success": false });
+        try {
+          // console.log( 'uid ' + uid );
+          accountSchema.findById( uid, fields, ( e, r ) => {
+            if ( e ) {
+              h.log( file + ' => error in accountModel.Read.accountById', e, e.errors );
+            } else {
+              if ( r ) {
+                const result = {
+                  "_id": r._id.toString(),
+                  "blocked": r.blocked,
+                  "deleted": r.deleted,
+                  "email": r.email,
+                  "username": r.username
+                };
+                next({ "data": result, "success": true });
               } else {
-                  next({ "msg": 'Unexpected result', "success": false });
-              }
-          }
-        });
+                next({ "msg": errMsg.accountNotFound, "success": false });
+              } 
+              // else {
+              //   console.log( 'Unexpected result' );
+              //   console.log( r );
+              //   next({ "msg": 'Unexpected result', "success": false });
+              // }
+            }
+          });
+        } catch ( error ) {
+          throw new Error( error );
+        }
       },
       accountByUsername: ( username, next ) => {
         accountSchema.find( { "username": username }, fields, ( e, r ) => {
@@ -83,7 +99,7 @@ const accountModel = {
                 "deleted": r[0].deleted,
                 "email": r[0].email,
                 "username": r[0].username
-              }
+              };
               next({ "success": true, "data": result });
             }
             else next({ "success": false, "msg": errMsg.accountNotFound });
@@ -91,17 +107,23 @@ const accountModel = {
         });
       },
       all: ( next ) => {
-        const q = N1qlQuery.fromString('SELECT '+fields+' FROM `' + process.env.BUCKET +
-        '` WHERE _type == "account" AND `deleted` == false ');
-        db.query(q, function(e, r) {
-          if (e) {
-            h.log( file + ' => accountModel.Read.all', e, next );
+        accountSchema.find( {}, fields, ( e, r ) => {
+          if ( e ) {
+            h.log( file + ' => accountModel.Read.accountById', e);
+            return e;
           } else {
-            if ( r.length > 0 ) {
-              next({ "data": r, "success": true });
+            if( r && r.length > 0 && h.isVal( r[0] ) ) {
+              // const result = {
+              //   "_id": r[0]._id,
+              //   "blocked": r[0].blocked,
+              //   "deleted": r[0].deleted,
+              //   "email": r[0].email,
+              //   "username": r[0].username
+              // };
+              next({ "success": true, "data": r });
             } else {
-              const msg = 'There are no results found ';
-              next({ "msg": msg, "success": false });
+              console.log( 'no accounts found' );
+              next({ "success": false, "msg": errMsg.accountNotFound });
             }
           }
         });
@@ -177,18 +199,20 @@ const accountModel = {
         },
       validateAccount: ( username, password, ips, twoAToken, next ) => {
         accountMethod.getAccountByUsername( username, true, ( account ) => {
-          if( account.result ) {
+          if( account.success ) {
             const twoAResult = ( account.data.enable2a ) ? accountMethod.validate2a( account.data.secret, twoAToken ) : true;
             if( twoAResult ) {
               accountMethod.passwordCompare( password, account.data.password, ( result ) => {
                 if( result ){
                   accountMethod.updateToken( account.data._id, ips, ( token ) => {
+                    console.log( 'token stored.' );
                     next({ "success": result, "token": token });
                   });
                 } else {
                   next({ "msg": errMsg.accountValidationFailure, "success": false });
                 }
               });
+              
             } else {
               console.log( 'enable2a ' + account.data.enable2a );
               next({ "msg": errMsg.accountValidationFailure, "success": false });
@@ -465,8 +489,8 @@ const accountModel = {
     }
 };
 // Non Public Methods
+pvtFields = '_id _type blocked deleted email username enable2a password secret recoveryPhrase recoveryPhraseProved';
 const accountMethod = {
-  fields: '_id _type blocked deleted email username enable2a password secret recoveryPhrase recoveryPhraseProved',
     duplicateName: ( username, next ) => {
       accountModel.Read.accountByUsername( username, ( r ) => {
         next( r.success );
@@ -483,7 +507,7 @@ const accountMethod = {
     getUserById: ( uid, allowDeleted, next ) => {
       let params = { _id: uid };
       if( !allowDeleted ) params.deleted = false;
-      accountSchema.find( params, this.fields, ( e, r ) => {
+      accountSchema.find( params, pvtFields, ( e, r ) => {
         if(e){
           h.log( file + ' => accountMethod.getUserById', e, next );
           next({ "error": e, "msg": errMsg.errorMsg, "success": false });
@@ -500,8 +524,9 @@ const accountMethod = {
       // if( !allowDeleted ) query += ' AND `deleted` == false ';
     },
     getAccountByUsername: ( username, deleted, next ) => {
-      let params = { username, deleted };
-      accountSchema.find( params, this.fields, ( e, r ) => {
+      let params = { "username": username };
+      if( !deleted ) params.deleted = deleted;
+      accountSchema.find( params, pvtFields, ( e, r ) => {
         if(e){
           h.log( file + ' => accountMethod.getAccountByUsername', e, next );
           next({ "error": e, "msg": errMsg.errorMsg, "success": false });
@@ -514,54 +539,19 @@ const accountMethod = {
             next({ "msg": errMsg.errorMsg, "success": false });
         }
       });
-      // let query = 'SELECT ' + fields + ', `enable2a`, `password`, `secret`, `recoveryPhrase`, `recoveryPhraseProved` FROM `' + process.env.BUCKET + '` WHERE _type == "account" AND `username` == "' + username + '" ';
-      // if( !allowDeleted ) query += ' AND `deleted` == false ';
-
-      // const q = N1qlQuery.fromString(query);
-      //   db.query(q, function(e, r) {
-      //     if(e){
-      //       console.log('error in accountMethod.getAccountByUsername');
-      //       console.log(e);
-      //       next({ "error": e, "msg": errMsg.errorMsg, "success": false });
-      //     }else{
-      //       if( r.length === 1)
-      //         next({ "data": r[0], "success": true });
-      //       else if( r.length === 0 )
-      //         next({ "msg": errMsg.accountNotFound, "success": false });
-      //       else
-      //         next({ "msg": errMsg.errorMsg, "success": false });
-      //     }
-      //   });
-    },
-    ink: ( password, next ) => {
-        // bcrypt.genSalt( 5, function( e, salt ) {
-        //     if( e ) {
-        //         console.error( e );
-        //         next( false, e );
-        //     } else {
-        //         bcrypt.hash( password, salt, function( er, hash ) {
-        //             if( er ) {
-        //                 console.error( er );
-        //                 next( false, er );
-        //             }else{
-        //                 next( hash, null );
-        //             }
-        //         });
-        //     }
-        // });
     },
     isVal: ( value ) => {
         return ( value && value !== null && value !== '' );
     },
     passwordCompare: ( pwd, hash, next ) => {
-      // bcrypt.compare( pwd, hash, function( e, r ) {
-      //   if( e ) {
-      //     console.log(' Error accountMethod passwordCompare');
-      //     console.log( e );
-      //   } else {
-      //     next( r );
-      //   }
-      // });
+      bcrypt.compare( pwd, hash, function( e, r ) {
+        if( e ) {
+          console.log(' Error accountMethod passwordCompare');
+          console.log( e );
+        } else {
+          next( r );
+        }
+      });
     },
     preValidateModel: ( account ) => {
         let success = true, msg = '';
