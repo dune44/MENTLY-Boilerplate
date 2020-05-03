@@ -1182,25 +1182,23 @@ describe( 'Account Model Update role', () => {
   });
 
 });
-/*
 
 describe( 'Account Model Read rolesById', () => {
 
   describe( 'Read populated Roles with Good UID', () => {
     let read_pop_RolesResult;
 
-    const read_pop_RolesByID = ( next ) => {
-      accountModel.Read.rolesById( testAccountUID, ( result ) => {
-        read_pop_RolesResult = result;
-        next();
-      });
+    const read_pop_RolesByID = async () => {
+      read_pop_RolesResult = await accountModel.Read.rolesById( testAccountUID );
+      return;
     };
 
-    before( done => {
-      read_pop_RolesByID( done );
+    before( async () => {
+      await read_pop_RolesByID();
+      return;
     });
 
-    after( done => done() );
+    after( done => { done() });
 
     // Property Exists
     it( 'read_pop_RolesResult should NOT have property error', () => {
@@ -1242,18 +1240,17 @@ describe( 'Account Model Read rolesById', () => {
   describe( 'Read empty Roles with Good UID', () => {
     let read_empty_RolesResult;
 
-    const read_empty_RolesByID = next => {
-      accountModel.Read.rolesById( testAccount2UID, result => {
-        read_empty_RolesResult = result;
-        next();
-      });
+    const read_empty_RolesByID = async () => {
+      read_empty_RolesResult = await accountModel.Read.rolesById( testAccount2UID );
+      return;
     };
 
-    before( done => {
-      read_empty_RolesByID( done );
+    before( async () => {
+      await read_empty_RolesByID();
+      return;
     });
 
-    after( done => done() );
+    after( done => { done() });
 
     // Property Exists
     it( 'read_empty_RolesResult should NOT have property error', () => {
@@ -1295,14 +1292,15 @@ describe( 'Account Model Read rolesById', () => {
   describe( 'Read Roles with Bad UID', () => {
     let read_bad_RolesResult;
 
-    const readRolesByID = next => {
-      accountModel.Read.rolesById( badUID, result => {
-        read_bad_RolesResult = result;
-        next();
-      });
+    const readRolesByID = async () => {
+      read_bad_RolesResult = await accountModel.Read.rolesById( badUID );
+      return;
     };
 
-    before( done => readRolesByID( done ) );
+    before( async () => {
+      await readRolesByID();
+      return;
+    });
 
     after( done => done() );
 
@@ -1344,7 +1342,7 @@ describe( 'Account Model Read rolesById', () => {
   });
 
 });
-
+/*
 describe( 'Account Model Read isInRole', () => {
 
   describe( 'Read empty isInRole with Good UID and Wrong Role', () => {
