@@ -2294,7 +2294,6 @@ describe( 'Update twoStep', () => {
   });
 
 });
-/*
 
 describe( 'Login with 2A', () => {
 
@@ -2302,18 +2301,17 @@ describe( 'Login with 2A', () => {
 
     let no2A_LoginResult;
 
-    const no2A_Login = next => {
-      accountModel.Read.validateAccount( username, passwordUpdated, fauxIPS, null, result => {
-        no2A_LoginResult = result;
-        next();
-      });
+    const no2A_Login = async () => {
+      no2A_LoginResult = await accountModel.Read.validateAccount( username, passwordUpdated, fauxIPS, null );
+      return;
     };
 
-    before( done => {
-      no2A_Login( done );
+    before( async () => {
+      await no2A_Login();
+      return;
     });
 
-    after( done => done() );
+    after( done => { done(); });
 
     // Property Exists
     it( 'no2A_LoginResult should NOT have property data', () => {
@@ -2356,18 +2354,17 @@ describe( 'Login with 2A', () => {
 
     let bad2A_LoginResult;
 
-    const no2A_Login = next => {
-      accountModel.Read.validateAccount( username, passwordUpdated, fauxIPS, '000000', result => {
-        bad2A_LoginResult =result;
-        next();
-      });
+    const no2A_Login = async () => {
+      bad2A_LoginResult = await accountModel.Read.validateAccount( username, passwordUpdated, fauxIPS, '000000' );
+      return;
     };
 
-    before( done => {
-      no2A_Login( done );
+    before( async () => {
+      await no2A_Login();
+      return;
     });
 
-    after( done => done() );
+    after( done => { done(); });
 
     // Property Exists
     it( 'bad2A_LoginResult should NOT have property data', () => {
@@ -2410,18 +2407,17 @@ describe( 'Login with 2A', () => {
 
     let unnecessary2A_LoginResult;
 
-    const no2A_Login = next => {
-      accountModel.Read.validateAccount( username2, password2, fauxIPS, '000000', result => {
-        unnecessary2A_LoginResult = result;
-        next();
-      });
+    const no2A_Login = async () => {
+      unnecessary2A_LoginResult = await accountModel.Read.validateAccount( username2, password2, fauxIPS, '000000' );
+      return;
     };
 
-    before( done => {
-      no2A_Login( done );
+    before( async () => {
+      await no2A_Login();
+      return;
     });
 
-    after( done => done() );
+    after( done => { done(); });
 
     // Property Exists
     it( 'unnecessary2A_LoginResult should NOT have property msg', () => {
@@ -2460,23 +2456,15 @@ describe( 'Login with 2A', () => {
 
       let good_LoginResult;
 
-      const no2A_Login = next => {
+      const no2A_Login = async () => {
         const token = authenticator.generate( testAccount1_2ASecret );
-        accountModel.Read.validateAccount( username, passwordUpdated, fauxIPS, token, ( result ) => {
-          good_LoginResult = result;
-          if ( result.msg ) {
-            console.log( 'result.msg' );
-            console.log( result.msg );
-            console.log( );
-            console.log( 'testAccount1_2ASecret' );
-            console.log( testAccount1_2ASecret );
-          }
-          next();
-        });
+        good_LoginResult = await accountModel.Read.validateAccount( username, passwordUpdated, fauxIPS, token );
+        return;
       };
 
-      before( done => {
-        no2A_Login( done );
+      before( async () => {
+        await no2A_Login();
+        return;
       });
 
       after( done => done() );
@@ -2522,19 +2510,18 @@ describe('Delete account', () => {
 
     let badID_deleteAccountResult;
 
-    const badID_deleteAccount = next => {
+    const badID_deleteAccount = async () => {
       const token = authenticator.generate( testAccount1_2ASecret );
-      accountModel.Delete.accountSoftly( 'badUsername', passwordUpdated, fauxIPS, token, result => {
-        badID_deleteAccountResult = result;
-        next();
-      });
+      badID_deleteAccountResult = await accountModel.Delete.accountSoftly( 'badUsername', passwordUpdated, fauxIPS, token );
+      return;
     };
 
-    before( done => {
-      badID_deleteAccount( done );
+    before( async () => {
+      await badID_deleteAccount();
+      return;
     });
 
-    after( done => done() );
+    after( done => { done(); });
 
     // Property Exists
     it( 'badID_deleteAccountResult should have property success', () => {
@@ -2569,19 +2556,18 @@ describe('Delete account', () => {
 
     let good_softDeleteAccountResult;
 
-    const good_softDeleteAccount = next => {
+    const good_softDeleteAccount = async () => {
       const token = authenticator.generate( testAccount1_2ASecret );
-      accountModel.Delete.accountSoftly( username, passwordUpdated, fauxIPS, token, result => {
-        good_deleteAccountResult = result;
-        next();
-      });
+      good_deleteAccountResult = await accountModel.Delete.accountSoftly( username, passwordUpdated, fauxIPS, token );
+      return;
     };
 
-    before( done => {
-      good_softDeleteAccount( done );
+    before( async () => {
+      await good_softDeleteAccount();
+      return;
     });
 
-    after( done => done() );
+    after( done => { done(); });
 
     // Property Exists
     it( 'good_deleteAccountResult should NOT have property msg', () => {
@@ -2610,15 +2596,14 @@ describe('Delete account', () => {
 
       let getSoftDeletedAccountByIdResult;
 
-      const getSoftDeletedAccount = next => {
-        accountModel.Read.accountById( testAccountUID, result => {
-          getSoftDeletedAccountByIdResult = result;
-          next();
-        });
+      const getSoftDeletedAccount = async () => {
+        getSoftDeletedAccountByIdResult = await accountModel.Read.accountById( testAccountUID );
+        return;
       };
 
-      before( done => {
-        getSoftDeletedAccount( done );
+      before( async () => {
+        await getSoftDeletedAccount();
+        return;
       });
 
       after( done => done() );
@@ -2656,18 +2641,17 @@ describe('Delete account', () => {
 
       let getSoftDeletedAccountByUsernameResult;
 
-      const getSoftDeletedAccount = next => {
-        accountModel.Read.accountByUsername( username, result => {
-          getSoftDeletedAccountByUsernameResult = result;
-          next();
-        });
+      const getSoftDeletedAccount = async () => {
+        getSoftDeletedAccountByUsernameResult = await accountModel.Read.accountByUsername( username );
+        return;
       };
 
-      before( done => {
-        getSoftDeletedAccount( done );
+      before( async () => {
+        await getSoftDeletedAccount();
+        return;
       });
 
-      after( done => done() );
+      after( done => { done(); });
 
       // Property Exists
       it( 'getSoftDeletedAccountByUsernameResult should have property msg', () => {
@@ -2702,18 +2686,17 @@ describe('Delete account', () => {
 
       let allAccountsResult;
 
-      const getAllAccount = next => {
-        accountModel.Read.all( result => {
-          allAccountsResult = result;
-          next();
-        });
+      const getAllAccount = async () => {
+        allAccountsResult = await accountModel.Read.all();
+        return;
       };
 
-      before( done => {
-        getAllAccount( done );
+      before( async () => {
+        await getAllAccount();
+        return;
       });
 
-      after( done => done() );
+      after( done => { done(); });
 
       // Property Exists
       it( 'allAccountsResult should have property data', () => {
@@ -2748,18 +2731,17 @@ describe('Delete account', () => {
 
       let recoveryPhraseResult;
 
-      const getRecoveryPhrase = next => {
-        accountModel.Read.passphrase( testAccountUID, phrase => {
-          recoveryPhraseResult = phrase;
-          next();
-        });
+      const getRecoveryPhrase = async () => {
+        recoveryPhraseResult = await accountModel.Read.passphrase( testAccountUID );
+        return;
       };
 
-      before( done => {
-        getRecoveryPhrase( done );
+      before( async () => {
+        await getRecoveryPhrase();
+        return;
       });
 
-      after( done => done() );
+      after( done => { done(); });
 
       // Property Exists
       it( 'recoveryPhraseResult should have property success', () => {
@@ -2826,19 +2808,18 @@ describe('Delete account', () => {
 
       let updateEmailResult;
 
-      const updateEmail = next => {
+      const updateEmail = async () => {
           const email = 'deletedaccount@email.com';
-          accountModel.Update.email( testAccountUID, email, result => {
-            updateEmailResult = result;
-            next();
-          });
+          updateEmailResult = await accountModel.Update.email( testAccountUID, email );
+          return;
       };
 
-      before( done => {
-        updateEmail( done );
+      before( async () => {
+        await updateEmail();
+        return;
       });
 
-      after( done => done() );
+      after( done => { done(); });
 
       it( 'updateEmailResult should NOT have property error', () => {
         expect( updateEmailResult ).to.not.have.property( 'error' );
@@ -2880,16 +2861,17 @@ describe('Delete account', () => {
 
       let generateQRResult;
 
-      const getSecret = next => {
-        generatedSecret = accountModel.Update.generateQRCode( testAccountUID, result => {
-          generateQRResult = result;
-          next();
-        });
+      const getSecret = async () => {
+        generateQRResult = await accountModel.Update.generateQRCode( testAccountUID );
+        return;
       };
 
-      before( done => getSecret( done ) );
+      before( async () => {
+        await getSecret();
+        return;
+      });
 
-      after( done => done() );
+      after( done => { done(); });
 
       // Property Exists
       it( 'generateQRResult should NOT have property data_url', () => {
@@ -2932,18 +2914,17 @@ describe('Delete account', () => {
 
       let deletedAccount_PassphraseProvedResult;
 
-      const get_BadUID_PassphraseRecoveryProved = next => {
-        accountModel.Update.passphraseProved( testAccountUID, recoveryPhraseUser1, result => {
-          deletedAccount_PassphraseProvedResult = result;
-          next();
-        });
+      const get_BadUID_PassphraseRecoveryProved = async () => {
+        deletedAccount_PassphraseProvedResult = await accountModel.Update.passphraseProved( testAccountUID, recoveryPhraseUser1 );
+        return;
       };
 
-      before( done => {
-        get_BadUID_PassphraseRecoveryProved( done );
+      before( async () => {
+        await get_BadUID_PassphraseRecoveryProved();
+        return;
       });
 
-      after( done => done() );
+      after( done => { done(); });
 
       // Property Exists
       it( 'deletedAccount_PassphraseProvedResult should have property success', () => {
@@ -2979,18 +2960,17 @@ describe('Delete account', () => {
       let deleteAccount_updatePasswordResult;
       const passwordUpdated2 = 'xt2PUef^E';
 
-      const updatePass = next => {
-        accountModel.Update.password( testAccountUID, passwordUpdated, passwordUpdated2, result => {
-          deleteAccount_updatePasswordResult = result;
-          next();
-        });
+      const updatePass = async () => {
+        deleteAccount_updatePasswordResult = await accountModel.Update.password( testAccountUID, passwordUpdated, passwordUpdated2 );
+        return;
       };
 
-      before( done => {
-        updatePass( done );
+      before( async () => {
+        await updatePass();
+        return;
       });
 
-      after( done => done() );
+      after( done => { done(); });
 
       // Property Exists
       it( 'deleteAccount_updatePasswordResult should NOT have property error', () => {
@@ -3034,20 +3014,18 @@ describe('Delete account', () => {
       let deleteAccount_twoStepResult;
       const twoA = true;
 
-      const updateTwoA = next => {
+      const updateTwoA = async () => {
         const token = authenticator.generate( testAccount1_2ASecret );
-
-        accountModel.Update.twoStep( testAccountUID, token, twoA, result => {
-          deleteAccount_twoStepResult = result;
-          next();
-        });
+        deleteAccount_twoStepResult = await accountModel.Update.twoStep( testAccountUID, token, twoA );
+        return;
       };
 
-      before( done => {
-        updateTwoA( done );
+      before( async () => {
+        await updateTwoA();
+        return;
       });
 
-      after( done => done() );
+      after( done => { done(); });
 
       // Property Exists
       it( 'deleteAccount_twoStepResult should NOT have property error', () => {
@@ -3093,18 +3071,17 @@ describe( 'Recover Account', () => {
     let badPhrase_recoveryPhraseResult;
     const badPhrase = '0000000000000000';
 
-    const recoverAccount = next => {
-      accountModel.Update.recoverAccount( username, badPhrase, result => {
-        badPhrase_recoveryPhraseResult = result;
-        next();
-      });
+    const recoverAccount = async () => {
+      badPhrase_recoveryPhraseResult = await accountModel.Update.recoverAccount( username, badPhrase );
+      return;
     };
 
-    before( done => {
-      recoverAccount( done );
+    before( async () => {
+      await recoverAccount();
+      return;
     });
 
-    after( done => done() );
+    after( done => { done(); });
 
     // Property Exists
     it( 'badPhrase_recoveryPhraseResult should have property msg', () => {
@@ -3140,18 +3117,17 @@ describe( 'Recover Account', () => {
     let badUser_recoveryPhraseResult;
     const badUsername = 'badTestUser';
 
-    const recoverAccount = next => {
-      accountModel.Update.recoverAccount( badUsername, 'anything', result => {
-        badUser_recoveryPhraseResult = result;
-        next();
-      });
+    const recoverAccount = async () => {
+      badUser_recoveryPhraseResult = await accountModel.Update.recoverAccount( badUsername, 'anything' );
+      return;
     };
 
-    before( done => {
-      recoverAccount( done );
+    before( async () => {
+      await recoverAccount();
+      return;
     });
 
-    after( done => done() );
+    after( done => { done(); });
 
     // Property Exists
     it( 'badUser_recoveryPhraseResult should have property msg', () => {
@@ -3186,22 +3162,17 @@ describe( 'Recover Account', () => {
 
     let good_recoveryPhraseResult;
 
-    const recoverAccount = next => {
-      accountModel.Update.recoverAccount( username, recoveryPhraseUser1, result => {
-        good_recoveryPhraseResult = result;
-        if ( result.msg ) {
-          console.log( 'recoverAccount msg' );
-          console.log( result.msg );
-        }
-        next();
-      });
+    const recoverAccount = async () => {
+      good_recoveryPhraseResult = await accountModel.Update.recoverAccount( username, recoveryPhraseUser1 );
+      return;
     };
 
-    before( done => {
-      recoverAccount( done );
+    before( async () => {
+      await recoverAccount();
+      return;
     });
 
-    after( done => done() );
+    after( done => { done(); });
 
     // Property Exists
     it( 'good_recoveryPhraseResult should NOT have property msg', () => {
@@ -3225,6 +3196,8 @@ describe( 'Recover Account', () => {
   });
 
 });
+
+/*
 
 describe( 'Forgot password.', () => {
 

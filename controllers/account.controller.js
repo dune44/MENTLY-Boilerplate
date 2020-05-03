@@ -304,7 +304,7 @@ const accountModel = {
         try {
           const r = await accountSchema.find( { "username": username }, 'recovery' );
           if( r && r.length === 1 ){
-            accountMethod.passwordCompare( recoveryPhrase, r[0].recovery.phrase, async result => {
+            const result = await accountMethod.passwordCompare( recoveryPhrase, r[0].recovery.phrase );
               if( result ) {
                 const update2aResult = await accountMethod.update2a( r[0]._id, false );
                   if( update2aResult.success )
@@ -314,7 +314,6 @@ const accountModel = {
               } else {
                 return { "msg": errMsg.recoveryFailed, "success": false };
               }
-            });
           } else {
             return { "msg": errMsg.recoveryFailed, "success": false };
           }
