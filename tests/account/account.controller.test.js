@@ -394,30 +394,26 @@ describe( 'Account Model Create a duplicate username in account', () => {
 
 });
 
-/*
 
 describe( 'Account Model Create a second user', () => {
 
-  const initializeSecondAccount = next => {
+  const initializeSecondAccount = async () => {
     const testUserObj2 = {
         "username": username2,
         "password": password2,
         "email": "steve@somesite.com",
     };
-    accountModel.Create.account( testUserObj2, ( goodResult ) => {
-      newAccount2 = goodResult;
-      testAccount2UID = goodResult.data._id;
-      next();
-    });
+    newAccount2 = await accountModel.Create.account( testUserObj2 );
+    testAccount2UID = newAccount2.data._id;
+    return;
   };
 
-  before( ( done ) => {
-    initializeSecondAccount( done );
+  before( async () => {
+    await initializeSecondAccount();
+    return;
   });
 
-  after( ( done ) => {
-    done();
-  });
+  after( done => { done(); });
 
   // Property Existence
   it( 'newAccount2 data should have property email', () => {
@@ -624,6 +620,8 @@ describe( 'Account Model Read accountByUsername', () => {
   });
 
 });
+
+/*
 
 describe( 'Account Model Read accountById', () => {
 
