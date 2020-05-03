@@ -1708,8 +1708,6 @@ describe( 'Update password', () => {
 
     const updateAccountPassword = async () => {
       goodPasswordResult = await accountModel.Update.password( testAccountUID, password, passwordUpdated );
-      // if( goodPasswordResult.msg ) console.log( goodPasswordResult.msg );
-      // else console.log( goodPasswordResult );
       return;
     };
 
@@ -1807,7 +1805,6 @@ describe( 'Update password', () => {
   // need test for bad uid.
 
 });
-/*
 
 describe( 'generate a QRcode and secret for 2a', () => {
 
@@ -1815,16 +1812,18 @@ describe( 'generate a QRcode and secret for 2a', () => {
 
     let qrcodeResult;
 
-    const getSecret = next => {
-      generatedSecret = accountModel.Update.generateQRCode( badUID, result => {
-        qrcodeResult = result;
-        next();
-      });
+    const getSecret = async () => {
+      qrcodeResult = await accountModel.Update.generateQRCode( badUID );
+      // generatedSecret = qrcodeResult;
+      return;
     };
 
-    before( done => getSecret( done ) );
+    before( async () =>{
+      await getSecret();
+      return;
+    });
 
-    after( done => done() );
+    after( done => { done(); });
 
     // Property Exists
     it( 'qrcodeResult should NOT have property data_url', () => {
@@ -1867,17 +1866,19 @@ describe( 'generate a QRcode and secret for 2a', () => {
 
     let qrcodeResult;
 
-    const getSecret = next => {
-      generatedSecret = accountModel.Update.generateQRCode( testAccountUID, result => {
-        qrcodeResult = result;
-        testAccount1_2ASecret = result.secret.base32;
-        next();
-      });
+    const getSecret = async () => {
+      qrcodeResult = await accountModel.Update.generateQRCode( testAccountUID );
+      // generatedSecret = qrcodeResult;
+      testAccount1_2ASecret = qrcodeResult.secret.base32;
+      return;
     };
 
-    before( ( done ) => getSecret( done ) );
+    before( async () => {
+      await getSecret();
+      return;
+    });
 
-    after( done => done() );
+    after( done => { done(); });
 
     // Property Exists
     it( 'qrcodeResult should have property data_url', () => {
@@ -1945,6 +1946,7 @@ describe( 'generate a QRcode and secret for 2a', () => {
   });
 
 });
+/*
 
 describe( 'Process the recovery phrase.', () => {
 

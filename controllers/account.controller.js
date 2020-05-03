@@ -228,19 +228,18 @@ const accountModel = {
         }
       },
       generateQRCode: async uid => {
-          const secret = speakeasy.generateSecret();
-          QRCode.toDataURL(secret.otpauth_url, async(e, data_url) => {
-            if( e ) {
-              h.log( file + ' => accountMethod.Update.generateQRCode', e, next );
-            } else{
-              const result = await accountMethod.saveQR( uid, secret.base32 );
-                if( result.success ) {
-                  return { "secret": secret, "data_url": data_url, "success": true };
-                } else {
-                  return result ;
-                }
-            }
-          });
+        const secret = speakeasy.generateSecret();
+        try{
+          const data_url = await QRCode.toDataURL(secret.otpauth_url );
+            const result = await accountMethod.saveQR( uid, secret.base32 );
+              if( result.success ) {
+                return { "secret": secret, "data_url": data_url, "success": true };
+              } else {
+                return result ;
+              }
+        } catch ( e ) {
+          h.log( file + ' => accountMethod.Update.generateQRCode', e );
+        }
       },
       passphraseProved: async ( uid, phrase ) => {
         try {
