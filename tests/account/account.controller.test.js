@@ -142,14 +142,14 @@ describe( 'Account Model Create a user account', () => {
     });
   }
 
-  const runDbCalls = next => {
+  const runDbCalls = async () => {
     try{
-      initializeAccount( () => {
-        initializeBadPasswordAccount( () => {
-          initializeBadUsernameAccount( () => {
-            initializeBadEmailAccount( () => {
-              next();
-            });
+      await initializeAccount( async () => {
+        await initializeBadPasswordAccount( async () => {
+          await initializeBadUsernameAccount( async () => {
+            await initializeBadEmailAccount( () => {});
+            // next();
+            return;
           });  
         });
       });
@@ -158,55 +158,45 @@ describe( 'Account Model Create a user account', () => {
     }
   };
 
-  const initializeAccount = next => {
-    accountModel.Create.account( testUserObj, result => {
-      newAccount = result;
-      next();
-    });
-
+  const initializeAccount = async next => {
+    newAccount = await accountModel.Create.account( testUserObj );
+    next();
   };
 
-  const initializeBadPasswordAccount = next => {
+  const initializeBadPasswordAccount = async next => {
       const testUserObj = {
           "username": "testUser2",
           "password":"1A2",
           "email": "dune44@hotmail.com",
       };
-      accountModel.Create.account( testUserObj, result => {
-        newBadPasswordAccount = result;
-        next();
-      });
+      newBadPasswordAccount = await accountModel.Create.account( testUserObj );
+      next();
   };
 
-  const initializeBadUsernameAccount = next => {
+  const initializeBadUsernameAccount = async next => {
       const testUserObj = {
           "username": "te",
           "password":"2M@iP931p",
           "email": "dune44@hotmail.com",
       };
-      accountModel.Create.account( testUserObj, result => {
-        newBadUsernameAccount = result;
-        next();
-      });
+      newBadUsernameAccount = await accountModel.Create.account( testUserObj );
+      next();
   };
 
-  const initializeBadEmailAccount = next => {
+  const initializeBadEmailAccount = async next => {
       const testUserObj = {
           "username": "testUser3",
           "password":"2M@iP931p",
           "email": "hotmail.com",
       };
-      accountModel.Create.account( testUserObj, result => {
-        newBadEmailAccount = result;
-        next();
-      });
+      newBadEmailAccount = await accountModel.Create.account( testUserObj );
+      next();
   };
 
-  before( ( done ) => {
-    clearAccounts( () => {
-      runDbCalls( () => {
-        done();
-      });
+  before( done => {
+    clearAccounts( async () => {
+      await runDbCalls();
+      done();
     });
   });
 
@@ -365,15 +355,14 @@ describe( 'Account Model Create a duplicate username in account', () => {
 
   let newBadDuplicateNameAccount;
 
-  const attemptDuplicateUsername = ( next ) => {
-    accountModel.Create.account( testUserObj, ( result ) => {
-      newBadDuplicateNameAccount = result;
-      next();
-    });
+  const attemptDuplicateUsername = async () => {
+    newBadDuplicateNameAccount = await accountModel.Create.account( testUserObj );
+    return;
   };
 
-  before( ( done ) => {
-    attemptDuplicateUsername( done );
+  before( async () => {
+    await attemptDuplicateUsername();
+    return;
   });
 
   after( ( done ) => {
@@ -404,6 +393,8 @@ describe( 'Account Model Create a duplicate username in account', () => {
   });
 
 });
+
+/*
 
 describe( 'Account Model Create a second user', () => {
 
@@ -3322,3 +3313,4 @@ describe( 'Forgot password.', () => {
   });
 
 });
+*/
