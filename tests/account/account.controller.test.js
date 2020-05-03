@@ -1050,7 +1050,7 @@ describe( 'Account Model Update role', () => {
       return;
     });
 
-    after( done => done() );
+    after( done => { done(); });
 
     // Property Exists
     it( 'update_GoodRole_GoodUser_Result should NOT have property error', () => {
@@ -1095,7 +1095,7 @@ describe( 'Account Model Update role', () => {
       return;
     });
 
-    after( done => { done() });
+    after( done => { done(); });
 
     // Property Exists
     it( 'update_BadRole_GoodUser_Result should NOT have property error', () => {
@@ -1147,7 +1147,7 @@ describe( 'Account Model Update role', () => {
       return;
     });
 
-    after( done => done() );
+    after( done => { done(); });
 
     // Property Exists
     it( 'update_GoodRole_BadUser_Result should NOT have property error', () => {
@@ -1198,7 +1198,7 @@ describe( 'Account Model Read rolesById', () => {
       return;
     });
 
-    after( done => { done() });
+    after( done => { done(); });
 
     // Property Exists
     it( 'read_pop_RolesResult should NOT have property error', () => {
@@ -1250,7 +1250,7 @@ describe( 'Account Model Read rolesById', () => {
       return;
     });
 
-    after( done => { done() });
+    after( done => { done(); });
 
     // Property Exists
     it( 'read_empty_RolesResult should NOT have property error', () => {
@@ -1302,7 +1302,7 @@ describe( 'Account Model Read rolesById', () => {
       return;
     });
 
-    after( done => done() );
+    after( done => { done(); });
 
     // Property Exists
     it( 'read_bad_RolesResult should NOT have property data', () => {
@@ -1342,23 +1342,24 @@ describe( 'Account Model Read rolesById', () => {
   });
 
 });
-/*
+
 describe( 'Account Model Read isInRole', () => {
 
   describe( 'Read empty isInRole with Good UID and Wrong Role', () => {
 
     let empty_isInRoleResult;
 
-    const get_empty_IsInRole = next => {
-      accountModel.Read.isInRole( testAccount2UID, roles[0], result => {
-        empty_isInRoleResult = result;
-        next();
-      });
+    const get_empty_IsInRole = async () => {
+      empty_isInRoleResult = await accountModel.Read.isInRole( testAccount2UID, roles[0] );
+      return;
     };
 
-    before( done => get_empty_IsInRole( done ) );
+    before( async () => {
+      await get_empty_IsInRole();
+      return;
+    });
 
-    after( done => done() );
+    after( done => { done(); });
 
     // Property Exists
     it( 'empty_isInRoleResult should NOT have property error', () => {
@@ -1392,18 +1393,17 @@ describe( 'Account Model Read isInRole', () => {
   describe( 'Read populated isInRole with Good UID and Good Role', () => {
     let populated_isInRoleResult;
 
-    const get_populated_IsInRole = next => {
-      accountModel.Read.isInRole( testAccountUID, roles[0], result => {
-        populated_isInRoleResult = result;
-        next();
-      });
+    const get_populated_IsInRole = async () => {
+      populated_isInRoleResult = await accountModel.Read.isInRole( testAccountUID, roles[0] );
+      return;
     };
 
-    before( done => {
-      get_populated_IsInRole( done );
+    before( async () => {
+      await get_populated_IsInRole();
+      return;
     });
 
-    after( done => done() );
+    after( done => { done(); });
 
     // Property Exists
     it( 'populated_isInRoleResult should NOT have property error', () => {
@@ -1437,18 +1437,17 @@ describe( 'Account Model Read isInRole', () => {
   describe( 'Read isInRole with Bad UID', () => {
 
     let bad_isInRoleResult;
-    const get_bad_IsInRole = next => {
-      accountModel.Read.isInRole( badUID, roles[0], result => {
-        bad_isInRoleResult = result;
-        next();
-      });
+    const get_bad_IsInRole = async () => {
+      bad_isInRoleResult = await accountModel.Read.isInRole( badUID, roles[0] );
+      return;
     };
 
-    before( done => {
-      get_bad_IsInRole( done );
+    before( async () => {
+      await get_bad_IsInRole();
+      return;
     });
 
-    after( done => done() );
+    after( done => { done(); });
 
     // Property Exists
     it( 'bad_isInRoleResult should NOT have property error', () => {
@@ -1491,18 +1490,17 @@ describe( 'Account Model Read isInRole', () => {
 
     let empty_badRole_isInRoleResult;
 
-    const get_empty_IsInRole = next => {
-      accountModel.Read.isInRole( testAccount2UID, badRole, result => {
-        empty_badRole_isInRoleResult = result;
-        next();
-      });
+    const get_empty_IsInRole = async () => {
+      empty_badRole_isInRoleResult = await accountModel.Read.isInRole( testAccount2UID, badRole );
+      return;
     };
 
-    before( done => {
-      get_empty_IsInRole( done );
+    before( async () => {
+      await get_empty_IsInRole();
+      return;
     });
 
-    after( done => done() );
+    after( done => { done(); });
 
     // Property Exists
     it( 'empty_badRole_isInRoleResult should NOT have property error', () => {
@@ -1542,6 +1540,7 @@ describe( 'Account Model Read isInRole', () => {
   });
 
 });
+/*
 
 describe( 'Update email', () => {
 
