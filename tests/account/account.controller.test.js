@@ -1699,7 +1699,6 @@ describe( 'Update email', () => {
   });
 
 });
-/*
 
 describe( 'Update password', () => {
 
@@ -1707,19 +1706,19 @@ describe( 'Update password', () => {
 
     let goodPasswordResult;
 
-    const updateAccountPassword = next => {
-      accountModel.Update.password( testAccountUID, password, passwordUpdated, result => {
-        goodPasswordResult = result;
-        if( result.msg ) console.log( result.msg );
-        next();
-      });
+    const updateAccountPassword = async () => {
+      goodPasswordResult = await accountModel.Update.password( testAccountUID, password, passwordUpdated );
+      // if( goodPasswordResult.msg ) console.log( goodPasswordResult.msg );
+      // else console.log( goodPasswordResult );
+      return;
     };
 
-    before( done => {
-      updateAccountPassword( done );
+    before( async () => {
+      await updateAccountPassword();
+      return;
     });
 
-    after( done => done() );
+    after( done => { done(); });
 
     // Property Exists
     it( 'goodPasswordResult should NOT have property error', () => {
@@ -1756,18 +1755,17 @@ describe( 'Update password', () => {
 
     const badPassword = 'nm%o&z';
 
-    const updateAccount = next => {
-      accountModel.Update.password( testAccount2UID, password2, badPassword, result => {
-        badPasswordResult = result;
-        next();
-      });
+    const updateAccount = async () => {
+      badPasswordResult = await accountModel.Update.password( testAccount2UID, password2, badPassword );
+      return;
     };
 
-    before( done => {
-      updateAccount( done );
+    before( async () => {
+      await updateAccount();
+      return;
     });
 
-    after( done => done() );
+    after( done => { done(); });
 
     // Property Exists
     it( 'badPasswordResult should NOT have property error', () => {
@@ -1809,6 +1807,7 @@ describe( 'Update password', () => {
   // need test for bad uid.
 
 });
+/*
 
 describe( 'generate a QRcode and secret for 2a', () => {
 

@@ -1,4 +1,4 @@
-const bcrypt = require( 'bcryptjs' );
+const bcrypt = require( 'bcrypt' );
 const errMsg = require( './../controllers/account.errMsg' );
 const moment = require( 'moment' );
 const mongoose = require('mongoose');

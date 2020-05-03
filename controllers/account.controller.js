@@ -27,7 +27,7 @@ const accountModel = {
           const data = new accountSchema( account );
           try{
             const r = await data.save();
-                return { "success": true, "data": r };
+              return { "success": true, "data": r };
           } catch ( e ) {
             if ( e ) {
               if( e.code === 11000) {
@@ -279,24 +279,23 @@ const accountModel = {
         if( accountMethod.validatePassword( newPassword ) ) {
           const account = await accountMethod.getUserById( uid, false );
             if( account.success ) {
-              accountMethod.passwordCompare( oldPassword, account.data.password, async compareResult => {
+              const compareResult = await accountMethod.passwordCompare( oldPassword, account.data.password );
                 if( compareResult ) {
-                  const ink = await accountMethod.ink( newPassword ); // ( hash, inkMsg )
-                    if ( ink.hash ) {
+                  const hash = await accountMethod.ink( newPassword );
+                    if ( hash ) {
                       try {
-                        const r = await accountSchema.updateOne( { "_id": uid }, { "password": ink.hash } );
+                        const r = await accountSchema.updateOne( { "_id": uid }, { "password": hash } );
                           if( r.nModified === 1 ) return { "success": true };
                           else return { "msg": errMsg.updateGenericFail, "success": false };
                       } catch ( e ) {
                         h.log( file + ' => accountModel.Update.password', e );
                       }
                     } else {
-                      return { "success": false, "msg": ink.inkMsg };
+                      return { "success": false, "msg": errMsg.errorMsg };
                     }
                 } else {
                   return { "msg": errMsg.accountValidationFailure, "success": false };
                 }
-              });
             } else {
               return account;
             }
@@ -441,22 +440,13 @@ const accountMethod = {
         return { "error": e, "msg": errMsg.errorMsg, "success": false };
       }
     },
-    ink: ( password, next ) => {
-      bcrypt.genSalt( 5, function( e, salt ) {
-          if( e ) {
-              console.error( e );
-              next( false, e );
-          } else {
-              bcrypt.hash( password, salt, function( er, hash ) {
-                  if( er ) {
-                      console.error( er );
-                      next( false, er );
-                  }else{
-                      next( hash, null );
-                  }
-              });
-          }
-      });
+    ink: async ( password, next ) => {
+      try {
+        const salt = await bcrypt.genSalt( 5 );
+        return await bcrypt.hash( password, salt );
+      }catch ( e ) {
+        h.log( file + ' => accountMethod.ink ', e );
+      }
     },
     isVal: value => {
         return ( value && value !== null && value !== '' );
