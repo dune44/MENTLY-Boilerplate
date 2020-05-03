@@ -473,20 +473,19 @@ describe( 'Account Model Read accountByUsername', () => {
 
   describe( 'Read Account with Good Username', () => {
 
-    const readTestAccountUsername = next => {
-      accountModel.Read.accountByUsername( username, (result) => {
-        readAccountByUsernameResult = result;
-        testAccountUID = result.data._id;
-        next();
-      });
+    const readTestAccountUsername = async () => {
+      readAccountByUsernameResult = await accountModel.Read.accountByUsername( username );
+      testAccountUID = readAccountByUsernameResult.data._id;
+      return;
     };
 
-    before( ( done ) => {
-      readTestAccountUsername( done );
+    before( async () => {
+      await readTestAccountUsername();
+      return;
     });
 
     after( ( done ) => {
-      setTimeout( done, 1);
+      done();
     });
 
     // Property Exists
@@ -563,18 +562,15 @@ describe( 'Account Model Read accountByUsername', () => {
 
     let readBadUsernameAccountResult;
     const badUsername_ReadBadUsernameAccount = 'WillowOfWindsDate';
-    const msgReadBadUsernameAccountResult = 'Result not found for ' + badUsername_ReadBadUsernameAccount;
-    const badMsg_ReadBadUsernameAccount = 'There is a duplicate found for ' + username;
 
-    function readBadUsernameAccount( next ) {
-      accountModel.Read.accountByUsername( badUsername_ReadBadUsernameAccount, ( result ) => {
-        readBadUsernameAccountResult = result;
-        next();
-      });
-    }
+    const readBadUsernameAccount = async () => {
+      readBadUsernameAccountResult = await accountModel.Read.accountByUsername( badUsername_ReadBadUsernameAccount );
+      return;
+    };
 
-    before( ( done ) => {
-      readBadUsernameAccount( done );
+    before( async () => {
+      await readBadUsernameAccount();
+      return;
     });
 
     after( ( done ) => {
@@ -621,23 +617,20 @@ describe( 'Account Model Read accountByUsername', () => {
 
 });
 
-/*
-
 describe( 'Account Model Read accountById', () => {
 
   describe( 'Read Account with Good UID.', () => {
 
     let readAccountByIDResult;
 
-    const readTestAccountByUID = next => {
-      accountModel.Read.accountById( testAccountUID, ( result ) => {
-        readAccountByIDResult = result;
-        next();
-      });
+    const readTestAccountByUID = async () => {
+      readAccountByIDResult = await accountModel.Read.accountById( testAccountUID );
+      return;
     };
 
-      before( done => {
-          readTestAccountByUID( done );
+      before( async () => {
+        await readTestAccountByUID();
+        return;
       });
 
       after( done => done() );
@@ -716,15 +709,14 @@ describe( 'Account Model Read accountById', () => {
 
     let readBadUIDAccountResult;
 
-    const badUID_readAccountByID = next => {
-      accountModel.Read.accountById( badUID, ( result ) => {
-        readBadUIDAccountResult = result;
-        next();
-      });
+    const badUID_readAccountByID = async () => {
+      readBadUIDAccountResult = await accountModel.Read.accountById( badUID );
+      return;
     };
 
-    before( ( done ) => {
-      badUID_readAccountByID( done );
+    before( async () => {
+      await badUID_readAccountByID();
+      return;
     });
 
     after( done => done() );
@@ -763,6 +755,7 @@ describe( 'Account Model Read accountById', () => {
   });
 
 });
+/*
 
 describe( 'Account Model Read All', () => {
 
