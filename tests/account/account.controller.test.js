@@ -755,21 +755,19 @@ describe( 'Account Model Read accountById', () => {
   });
 
 });
-/*
 
 describe( 'Account Model Read All', () => {
 
   let readAllResult;
 
-  const readAllAccounts = next => {
-      accountModel.Read.all( ( result ) => {
-        readAllResult = result;
-        next();
-      });
+  const readAllAccounts = async () => {
+    readAllResult = await accountModel.Read.all();
+    return;
   };
 
-  before( ( done ) => {
-    readAllAccounts( done );
+  before( async () => {
+    await readAllAccounts();
+    return;
   });
 
   after( done => done() );
@@ -813,16 +811,15 @@ describe( 'Account Model Read Validate Credentials', () => {
 
     let badUsernameLoginResult;
 
-    const attemptBadUidLogin = next => {
+    const attemptBadUidLogin = async () => {
       const passwordForBadLogin = "85Ie!ki49p";
-      accountModel.Read.validateAccount( 'badUsername', passwordForBadLogin, fauxIPS, null, ( result ) => {
-        badUsernameLoginResult = result;
-        next();
-      });
+      badUsernameLoginResult =  await accountModel.Read.validateAccount( 'badUsername', passwordForBadLogin, fauxIPS, null );
+      return;
     };
 
-    before( done => {
-      attemptBadUidLogin( done );
+    before( async () => {
+      await attemptBadUidLogin();
+      return;
     });
 
     after( done => done() );
@@ -868,19 +865,18 @@ describe( 'Account Model Read Validate Credentials', () => {
 
     let badPasswordLoginResult;
 
-    const attemptBadPasswordLogin = next => {
+    const attemptBadPasswordLogin = async () => {
       const BadPassword = "2M@55iP931p";
-      accountModel.Read.validateAccount( username, BadPassword, fauxIPS, null, ( result ) => {
-        badPasswordLoginResult = result;
-        next();
-      });
+      badPasswordLoginResult = await accountModel.Read.validateAccount( username, BadPassword, fauxIPS, null );
+      return;
     };
 
-    before( ( done ) => {
-        attemptBadPasswordLogin( done );
+    before( async () => {
+      await attemptBadPasswordLogin();
+      return;
     });
 
-    after( done => done() );
+    after( done => { done(); });
 
     // Property Existence -- ( badPasswordLoginResult )
     it( 'badPasswordLoginResult should NOT have property data', () => {
@@ -923,16 +919,15 @@ describe( 'Account Model Read Validate Credentials', () => {
 
     let  goodLoggingResult;
 
-    const attemptGoodLogin = next => {
-      accountModel.Read.validateAccount( username, password, fauxIPS, null, ( result ) => {
-        validationToken = result.token;
-        goodLoggingResult = result;
-        next();
-      });
+    const attemptGoodLogin = async () => {
+      goodLoggingResult = await accountModel.Read.validateAccount( username, password, fauxIPS, null );
+      validationToken = goodLoggingResult.token;
+      return;
     };
 
-    before( ( done ) => {
-      attemptGoodLogin( done );
+    before( async () => {
+      await attemptGoodLogin();
+      return;
     });
 
     after( done => done() );
@@ -1045,15 +1040,14 @@ describe( 'Account Model Update role', () => {
   describe( 'Add Good Role to Good Account', () => {
     let update_GoodRole_GoodUser_Result;
 
-    const updateRole = next => {
-      accountModel.Update.role( testAccountUID, roles[0], ( result ) => {
-        update_GoodRole_GoodUser_Result = result;
-        next();
-      });
+    const updateRole = async () => {
+      update_GoodRole_GoodUser_Result = await accountModel.Update.role( testAccountUID, roles[0] );
+      return;
     };
 
-    before( done => {
-      updateRole( done );
+    before( async () => {
+      await updateRole();
+      return;
     });
 
     after( done => done() );
@@ -1091,18 +1085,17 @@ describe( 'Account Model Update role', () => {
     let update_BadRole_GoodUser_Result;
     const badRoleMSG = 'No such role.';
 
-    const updateRole = next => {
-      accountModel.Update.role( testAccountUID, badRole, result => {
-        update_BadRole_GoodUser_Result = result;
-        next();
-      });
+    const updateRole = async () => {
+      update_BadRole_GoodUser_Result = await accountModel.Update.role( testAccountUID, badRole );
+      return;
     };
 
-    before( done => {
-      updateRole( done );
+    before( async () => {
+      await updateRole();
+      return;
     });
 
-    after( done => done() );
+    after( done => { done() });
 
     // Property Exists
     it( 'update_BadRole_GoodUser_Result should NOT have property error', () => {
@@ -1144,15 +1137,14 @@ describe( 'Account Model Update role', () => {
   describe( 'Add Good Role to Bad Account', () => {
     let update_GoodRole_BadUser_Result;
 
-    const updateRole = next => {
-      accountModel.Update.role( badUID, roles[0], result => {
-        update_GoodRole_BadUser_Result = result;
-        next();
-      });
+    const updateRole = async () => {
+      update_GoodRole_BadUser_Result = await accountModel.Update.role( badUID, roles[0] );
+      return;
     };
 
-    before( done => {
-      updateRole( done );
+    before( async () => {
+      await updateRole();
+      return;
     });
 
     after( done => done() );
@@ -1190,6 +1182,7 @@ describe( 'Account Model Update role', () => {
   });
 
 });
+/*
 
 describe( 'Account Model Read rolesById', () => {
 

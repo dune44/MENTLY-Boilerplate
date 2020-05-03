@@ -1,7 +1,7 @@
 const h = require( './helper.methods' );
 const accountSchema = require('./../schema/account.schema');
-const bcrypt = require( 'bcryptjs' );
-const config = process.ENV;
+const bcrypt = require( 'bcrypt' );
+const config = process.env;
 const jwt = require( 'jsonwebtoken' );
 const moment = require( 'moment' );
 const speakeasy = require( 'speakeasy' );
@@ -173,7 +173,7 @@ const accountModel = {
             if( twoAResult ) {
               const result = await accountMethod.passwordCompare( password, account.data.password );
                 if( result ){
-                  const token = await accountMethod.updateToken( account.data._id, ips );
+                  const token = accountMethod.updateToken( account.data._id, ips );
                     // console.log( 'token stored.' );
                     return { "success": result, "token": token, "user": { "_id": account.data._id, "name": account.data.username } };
                 } else {
@@ -461,11 +461,12 @@ const accountMethod = {
     isVal: value => {
         return ( value && value !== null && value !== '' );
     },
-    passwordCompare: ( pwd, hash, next ) => {
-      bcrypt.compare( pwd, hash, function( e, r ) {
-        if( e ) h.log( file + ' => accountMethod.passwordCompare', e, next );
-        else next( r );
-      });
+    passwordCompare: async ( pwd, hash ) => {
+      try {
+        return await bcrypt.compare( pwd, hash );
+      } catch ( e ) {
+        h.log( file + ' => accountMethod.passwordCompare', e, next );
+      }
     },
     preValidateModel: account => {
         let success = true, msg = '';
@@ -509,11 +510,11 @@ const accountMethod = {
         h.log( file + ' => accountModel.accountMethod update2a.', e );
       }
     },
-    updateToken: ( uid, ips, next ) => {
+    updateToken: ( uid, ips) => {
         const token = jwt.sign({ _id: uid, ips }, config.JWT_SECRET,
           { expiresIn: '7 days' } );
         // Pass back token to be stored by user.
-        next( token );
+        return token;
     },
     validate2a: ( secret, token ) => {
         const result = speakeasy.totp.verify({
