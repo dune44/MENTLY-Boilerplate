@@ -121,18 +121,17 @@ const accountModel = {
           for (var i = 0; i < 32; i++) {
             phrase += chars.substr( Math.floor( Math.random() * chars.length ), 1 );
           }
-          const ink = await accountMethod.ink( phrase ); // ( hash, inkMsg )
-            if( ink.hash ) {
+          const hash = await accountMethod.ink( phrase ); // ( hash, inkMsg )
+            if( hash ) {
               try {
-                const r = await accountSchema.updateOne( { "_id": uid, "deleted": false }, { "recovery.phrase": ink.hash } );
+                const r = await accountSchema.updateOne( { "_id": uid, "deleted": false }, { "recovery.phrase": hash } );
                 if( r.nModified === 1 ) return phrase;
                 else return { "msg": errMsg.updateGenericFail, "success": false };
               } catch ( e ) {
                 h.log( file + ' => accountModel.Update.password', e );
               }
             } else {
-              console.log( ink.inkMsg );
-              return { "msg": ink.inkMsg, "result": false };
+              return { "msg": errMsg.errorMsg, "result": false };
             }
       },
       rolesById: async uid  => {
@@ -245,7 +244,7 @@ const accountModel = {
         try {
           const r = await accountSchema.findOne( { "_id": uid, "deleted": false } );
           if ( r && r.recovery ) {
-            accountMethod.passwordCompare( phrase, r.recovery.phrase, async result => {
+            const result = await accountMethod.passwordCompare( phrase, r.recovery.phrase );
               if ( result ) {
                 try {
                   const r = await accountSchema.updateOne( { "_id": uid, "deleted": false}, { "recovery.proved": true } );
@@ -264,7 +263,6 @@ const accountModel = {
               } else {
                 return { "msg": errMsg.accountValidationFailure, "success": false };
               }
-            });
           } else if( !r || r.length === 0 ) {
             return { "msg": errMsg.accountNotFound, "success": false };
           } else {

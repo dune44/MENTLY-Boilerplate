@@ -1946,24 +1946,22 @@ describe( 'generate a QRcode and secret for 2a', () => {
   });
 
 });
-/*
 
 describe( 'Process the recovery phrase.', () => {
 
   describe( 'Generate phrase', () => {
 
-    const getRecoveryPhrase = next => {
-      accountModel.Read.passphrase( testAccountUID, phrase => {
-        recoveryPhraseUser1 = phrase;
-        next();
-      });
+    const getRecoveryPhrase = async () => {
+      recoveryPhraseUser1 = await accountModel.Read.passphrase( testAccountUID );
+      return;
     };
 
-    before( done => {
-      getRecoveryPhrase( done );
+    before( async () => {
+      await getRecoveryPhrase();
+      return;
     });
 
-    after( done => done() );
+    after( done => { done(); });
 
     // Property Type
     it( 'recoveryPhraseUser1 should be a string', () => {
@@ -1980,18 +1978,17 @@ describe( 'Process the recovery phrase.', () => {
   describe( 'Generate phrase with bad ID', () => {
 
     let badId_getRecoveryPhraseResult;
-    const getRecoveryPhrase = next => {
-      accountModel.Read.passphrase( badUID, phrase => {
-        badId_getRecoveryPhraseResult = phrase;
-        next();
-      });
+    const getRecoveryPhrase = async () => {
+      badId_getRecoveryPhraseResult = await accountModel.Read.passphrase( badUID );
+      return;
     };
 
-    before( ( done ) => {
-      getRecoveryPhrase( done );
+    before( async () => {
+      await getRecoveryPhrase();
+      return;
     });
 
-    after( done => done() );
+    after( done => { done(); });
 
     // Property Exists
     it( 'badId_getRecoveryPhraseResult should have property success', () => {
@@ -2026,18 +2023,17 @@ describe( 'Process the recovery phrase.', () => {
 
     let goodPassphraseProvedResult;
 
-    const get_Good_PassphraseProved = next => {
-      accountModel.Update.passphraseProved( testAccountUID, recoveryPhraseUser1, result => {
-        goodPassphraseProvedResult = result;
-        next();
-      });
+    const get_Good_PassphraseProved = async () => {
+      goodPassphraseProvedResult = await accountModel.Update.passphraseProved( testAccountUID, recoveryPhraseUser1 );
+      return;
     };
 
-    before( ( done ) => {
-      get_Good_PassphraseProved( done );
+    before( async () => {
+      await get_Good_PassphraseProved();
+      return;
     });
 
-    after( done => done() );
+    after( done => { done(); });
 
     // Property Exists
     it( 'goodPassphraseProvedResult should have property success', () => {
@@ -2061,18 +2057,17 @@ describe( 'Process the recovery phrase.', () => {
     let badPassphraseProvedResult;
     const badRecoveryPhrase = '62y$TqqXdwSg4y%a67pzjRdA&wvtM2F@';
 
-    const get_Good_PassphraseProved = next => {
-      accountModel.Update.passphraseProved( testAccountUID, badRecoveryPhrase, result => {
-        badPassphraseProvedResult = result;
-        next();
-      });
+    const get_Good_PassphraseProved = async () => {
+      badPassphraseProvedResult = await accountModel.Update.passphraseProved( testAccountUID, badRecoveryPhrase );
+      return;
     };
 
-    before( done => {
-      get_Good_PassphraseProved( done );
+    before( async () => {
+      await get_Good_PassphraseProved();
+      return;
     });
 
-    after( done => done() );
+    after( done => { done(); });
 
     // Property Exists
     it( 'badPassphraseProvedResult should have property msg', () => {
@@ -2107,18 +2102,17 @@ describe( 'Process the recovery phrase.', () => {
 
     let badUser_PassphraseProvedResult;
 
-    const get_BadUID_PassphraseRecoveryProved = next => {
-      accountModel.Update.passphraseProved( badUID, recoveryPhraseUser1, result => {
-        badUser_PassphraseProvedResult = result;
-        next();
-      });
+    const get_BadUID_PassphraseRecoveryProved = async () => {
+      badUser_PassphraseProvedResult = await accountModel.Update.passphraseProved( badUID, recoveryPhraseUser1 );
+      return;
     };
 
-    before( done => {
-      get_BadUID_PassphraseRecoveryProved( done );
+    before( async () => {
+      await get_BadUID_PassphraseRecoveryProved();
+      return;
     });
 
-    after( done => done() );
+    after( done => { done(); });
 
     // Property Exists
     it( 'badUser_PassphraseProvedResult should have property success', () => {
@@ -2150,6 +2144,7 @@ describe( 'Process the recovery phrase.', () => {
   });
 
 });
+/*
 
 describe( 'Update twoStep', () => {
 
