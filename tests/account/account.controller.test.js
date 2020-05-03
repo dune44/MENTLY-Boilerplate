@@ -1540,7 +1540,6 @@ describe( 'Account Model Read isInRole', () => {
   });
 
 });
-/*
 
 describe( 'Update email', () => {
 
@@ -1548,22 +1547,21 @@ describe( 'Update email', () => {
     let update_email_Result;
     const email = "harvey@someothersite.com";
 
-    const updateAccount = next => {
-      accountModel.Update.email( testAccountUID, email, result => {
-        update_email_Result = result;
-        if(result.msg){
-          console.log( 'msg' );
-          console.log( result.msg);
-        }
-        next();
-      });
+    const updateAccount = async () => {
+      update_email_Result = await accountModel.Update.email( testAccountUID, email );
+      if ( update_email_Result.msg ) {
+        console.log( 'msg' );
+        console.log( update_email_Result.msg);
+      }
+      return;
     };
 
-    before( done => {
-      updateAccount( done );
+    before( async () => {
+      await updateAccount();
+      return;
     });
 
-    after( done => done() );
+    after( done => { done(); });
 
     // Property Exists
     it( 'update_email_Result should NOT have property error', () => {
@@ -1598,18 +1596,17 @@ describe( 'Update email', () => {
     let update_bad_email_Result;
     const email = "bob@SomeSiteCom";
 
-    const updateAccount = next => {
-      accountModel.Update.email( testAccountUID, email, result => {
-        update_bad_email_Result = result;
-        next();
-      });
+    const updateAccount = async () => {
+      update_bad_email_Result = await accountModel.Update.email( testAccountUID, email );
+      return;
     };
 
-    before( done => {
-      updateAccount( done );
+    before( async () => {
+      await updateAccount();
+      return;
     });
 
-    after( done => done() );
+    after( done => { done(); });
 
     // Property Exists
     it( 'update_bad_email_Result should NOT have property error', () => {
@@ -1652,18 +1649,17 @@ describe( 'Update email', () => {
     let update_badUid_email_Result;
     const email = "b.smith@somesite.com";
 
-    const updateAccount = next => {
-      accountModel.Update.email( badUID, email, result => {
-        update_badUid_email_Result = result;
-        next();
-      });
+    const updateAccount = async () => {
+      update_badUid_email_Result = await accountModel.Update.email( badUID, email );
+      return;
     };
 
-    before( done => {
-      updateAccount( done );
+    before( async () => {
+      await updateAccount();
+      return;
     });
 
-    after( done => done() );
+    after( done => { done(); });
 
     // Property Exists
     it( 'update_badUid_email_Result should NOT have property error', () => {
@@ -1703,6 +1699,7 @@ describe( 'Update email', () => {
   });
 
 });
+/*
 
 describe( 'Update password', () => {
 
