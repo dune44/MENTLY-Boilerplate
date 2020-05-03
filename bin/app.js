@@ -5,7 +5,7 @@ const bodyParser = require( 'body-parser' );
 const mongoose = require( 'mongoose' );
 
 const app = express();
-const MongoUri = process.env.MONGO_URL + process.env.COLLECTION;
+const MongoUri = process.env.MONGO_URL + process.env.DATABASE;
 mongoose.connect( MongoUri,  { useNewUrlParser: true, useUnifiedTopology: true } );
 
 app.set( 'x-powered-by',false );

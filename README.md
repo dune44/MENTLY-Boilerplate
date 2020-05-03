@@ -25,7 +25,7 @@ Make sure your server is setup with the necessary ENV vars.
 * MONGO_URL   ( address to your Mongo test db server )
 * DB_USERNAME     ( Mongo account with permission to you DB )
 * DB_PASSWORD     ( Mongo account password )
-* COLLECTION          ( this should be different buckets based on dev or test scenario )
+* DATABASE          ( this should be different buckets based on dev or test scenario )
 * JWT_SECRET      ( this can be any secret, just don't tell anyone )
 * NODE_ENV        ( set to dev or test respectively )
 Email Variables

@@ -50,11 +50,11 @@ const accountSchema = new Schema({
     secret: String,
     timestamp: {
       origin: {
-        default: moment().format( 'YYYY-MM-DD HH' ),
+        default: moment().format( 'YYYY-MM-DD HH:mm:ss' ),
         type: String
       },
       updated: {
-        default: moment().format( 'YYYY-MM-DD HH' ),
+        default: moment().format( 'YYYY-MM-DD HH:mm:ss' ),
         type: String 
       }
     },
