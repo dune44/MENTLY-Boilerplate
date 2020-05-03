@@ -347,27 +347,22 @@ const accountModel = {
           if( account.success ){
             if( account.data.recovery.proved ) {
               if( account.data.twoAuth && account.data.twoAuth.enabled && account.data.enabled.enabled != twoA ) {
-                accountMethod.validate2a( account.data.secret, token, validated => {
+                const validated = accountMethod.validate2a( account.data.secret, token );
                   if( validated ) {
-                    accountMethod.update2a( uid, twoA, resultObj => {
-                      next( resultObj );
-                    });
+                    const resultObj = await accountMethod.update2a( uid, twoA );
+                      return resultObj;
                   } else {
-                    next({ "msg": errMsg.accountValidationFailure, "success": false});
+                    return { "msg": errMsg.accountValidationFailure, "success": false};
                   }
-                });
               } else {
-                accountMethod.update2a( uid, twoA, resultObj => {
-                  next( resultObj );
-                });
+                return await accountMethod.update2a( uid, twoA );
               }
             } else {
-              next({ "msg": errMsg.recoveryPhraseNotProved, "success": false });
+              return { "msg": errMsg.recoveryPhraseNotProved, "success": false };
             }
           } else {
-            next({ "msg": errMsg.accountNotFound, "success": false });
+            return { "msg": errMsg.accountNotFound, "success": false };
           }
-
       }
     },
     Delete: {

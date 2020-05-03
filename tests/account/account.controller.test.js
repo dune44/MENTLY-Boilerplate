@@ -2144,7 +2144,6 @@ describe( 'Process the recovery phrase.', () => {
   });
 
 });
-/*
 
 describe( 'Update twoStep', () => {
 
@@ -2154,18 +2153,17 @@ describe( 'Update twoStep', () => {
     const twoA = true;
     const token = '000000';
 
-    const updateTwoA = next => {
-      accountModel.Update.twoStep( testAccount2UID, token, twoA, result => {
-        noConfirm_twoStepResult = result;
-        next();
-      });
+    const updateTwoA = async () => {
+      noConfirm_twoStepResult = await accountModel.Update.twoStep( testAccount2UID, token, twoA );
+      return;
     };
 
-    before( done => {
-      updateTwoA( done );
+    before( async () => {
+      await updateTwoA();
+      return;
     });
 
-    after( done => done() );
+    after( done => { done(); });
 
     // Property Exists
     it( 'noConfirm_twoStepResult should NOT have property error', () => {
@@ -2205,21 +2203,16 @@ describe( 'Update twoStep', () => {
     let good_twoStepResult;
     const twoA = true;
 
-    const getToken = next => {
+    const getToken = async () => {
       const token = authenticator.generate( testAccount1_2ASecret );
       // console.log( 'token ' + token );
-      accountModel.Update.twoStep( testAccountUID, token, twoA, result => {
-        good_twoStepResult = result;
-        if( result.msg ) {
-          console.log( 'result.msg' );
-          console.log( result.msg );
-        }
-        next();
-      });
+      good_twoStepResult = await accountModel.Update.twoStep( testAccountUID, token, twoA );
+      return;
     };
 
-    before( done => {
-      getToken( done );
+    before( async () => {
+      await getToken();
+      return;
     });
 
     after( done => setTimeout( done(), 1 ) );
@@ -2254,19 +2247,18 @@ describe( 'Update twoStep', () => {
     let badID_twoStepResult;
     const twoA = true;
 
-    const updateTwoA = next => {
+    const updateTwoA = async () => {
       const token = authenticator.generate( testAccount1_2ASecret );
-      accountModel.Update.twoStep( badUID, token, twoA, result => {
-        badID_twoStepResult = result;
-        next();
-      });
+      badID_twoStepResult = await accountModel.Update.twoStep( badUID, token, twoA );
+      return;
     };
 
-    before( done => {
-      updateTwoA( done );
+    before( async () => {
+      await updateTwoA();
+      return;
     });
 
-    after( done => done() );
+    after( done => { done(); });
 
     // Property Exists
     it( 'badID_twoStepResult should NOT have property error', () => {
@@ -2302,6 +2294,7 @@ describe( 'Update twoStep', () => {
   });
 
 });
+/*
 
 describe( 'Login with 2A', () => {
 
