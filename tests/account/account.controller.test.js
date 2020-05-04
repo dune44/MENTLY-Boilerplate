@@ -138,7 +138,7 @@ describe( 'Account Model Create a user account', () => {
         //console.log( 'test db cleared ' );
       }
       //console.log( 'end testing statement.' );
-      setTimeout( next, 200 );
+      next();
     });
   }
 
@@ -201,7 +201,6 @@ describe( 'Account Model Create a user account', () => {
   });
 
   after( done => {
-    // setTimeout( done, 200);
     done();
   });
 
@@ -2222,7 +2221,7 @@ describe( 'Update twoStep', () => {
       return;
     });
 
-    after( done => setTimeout( done(), 1 ) );
+    after( done => { done(); });
 
     // Property Exists
     it( 'good_twoStepResult should NOT have property msg', () => {

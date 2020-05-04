@@ -20,7 +20,15 @@ const accountRoutes = ( app, h ) => {
             password: req.body.password,
             email: req.body.email
         };
-        const result = await accountController.Create.account( account );
+        const r = await accountController.Create.account( account );
+        const result = {
+            "success": r.success,
+            "account": {
+                "_id": r.data._id,
+                "username": r.data.username,
+                "email": r.data.email
+            }
+        };
         res.status( 201 ).send( result );
     });
 
