@@ -27,7 +27,13 @@ const accountModel = {
           const data = new accountSchema( account );
           try{
             const r = await data.save();
-              return { "success": true, "data": r };
+              const result = {
+                "_id": r._id,
+                "username": r.username,
+                "email": r.email,
+                "pwdLength": r.password.length
+              };
+              return { "success": true, "data": result };
           } catch ( e ) {
             if ( e ) {
               if( e.code === 11000) {

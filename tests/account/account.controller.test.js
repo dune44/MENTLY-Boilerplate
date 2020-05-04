@@ -212,12 +212,16 @@ describe( 'Account Model Create a user account', () => {
       expect( newAccount ).to.not.have.property( 'msg' );
     });
 
+    it( 'newAccount should NOT have property password', () => {
+      expect( newAccount.data ).to.not.have.property( 'password' );
+    });
+
     it( 'newAccount data should have property email', () => {
       expect( newAccount.data ).to.have.property( 'email' );
     });
 
-    it( 'newAccount should have property password', () => {
-      expect( newAccount.data ).to.have.property( 'password' );
+    it( 'newAccount should have property pwdLength', () => {
+      expect( newAccount.data ).to.have.property( 'pwdLength' );
     });
 
     it( 'newAccount should have property success', () => {
@@ -237,8 +241,8 @@ describe( 'Account Model Create a user account', () => {
       expect( newAccount.data.email ).to.be.a( 'string' );
     });
 
-    it( 'newAccount data password should be a string', () => {
-      expect( newAccount.data.password ).to.be.a( 'string' );
+    it( 'newAccount data pwdLength should be a number', () => {
+      expect( newAccount.data.pwdLength ).to.be.a( 'number' );
     });
 
     it( 'newAccount username should be a string', () => {
@@ -251,7 +255,7 @@ describe( 'Account Model Create a user account', () => {
 
     // Return Value
     it( 'newAccount should have a password longer than 30', () => {
-      expect( newAccount.data.password ).to.have.lengthOf.at.least( 30 );
+      expect( newAccount.data.pwdLength ).to.be.at.least( 30 );
     });
 
     it( 'newAccount should have a username longer than 3', () => {
@@ -394,7 +398,6 @@ describe( 'Account Model Create a duplicate username in account', () => {
 
 });
 
-
 describe( 'Account Model Create a second user', () => {
 
   const initializeSecondAccount = async () => {
@@ -420,8 +423,8 @@ describe( 'Account Model Create a second user', () => {
     expect( newAccount2.data ).to.have.property( 'email' );
   });
 
-  it( 'newAccount2 should have property password', () => {
-    expect( newAccount2.data ).to.have.property( 'password' );
+  it( 'newAccount2 should NOT have property password', () => {
+    expect( newAccount2.data ).to.not.have.property( 'password' );
   });
 
   it( 'newAccount2 should have property success', () => {
@@ -430,6 +433,10 @@ describe( 'Account Model Create a second user', () => {
 
   it( 'newAccount2 should have property username', () => {
     expect( newAccount2.data ).to.have.property( 'username' );
+  });
+
+  it( 'newAccount2.data should have property pwdLength', () => {
+    expect( newAccount2.data ).to.have.property( 'pwdLength' );
   });
 
   // Property Type
@@ -441,8 +448,8 @@ describe( 'Account Model Create a second user', () => {
     expect( newAccount2.data.email ).to.be.a( 'string' );
   });
 
-  it( 'newAccount2 data password should be a string', () => {
-    expect( newAccount2.data.password ).to.be.a( 'string' );
+  it( 'newAccount2 data pwdLength should be a number', () => {
+    expect( newAccount2.data.pwdLength ).to.be.a( 'number' );
   });
 
   it( 'newAccount2 username should be a string', () => {
@@ -455,8 +462,8 @@ describe( 'Account Model Create a second user', () => {
   
 
   // Return Value
-  it( 'newAccount2 should have a password longer than 30', () => {
-    expect( newAccount2.data.password ).to.have.lengthOf.at.least( 30 );
+  it( 'newAccount2 should have a pwdLength longer than 30', () => {
+    expect( newAccount2.data.pwdLength ).to.be.at.least( 30 );
   });
 
   it( 'newAccount2 should have a username longer than 3', () => {
