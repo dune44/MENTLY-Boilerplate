@@ -1,6 +1,6 @@
 {
   "name": "mently-boilerplate",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "MENTLy Mongo Express Node Tested Login. A boilerplate application for building a RESTful APIs in Node.js using express.",
   "main": "bin/index.js",
   "bin": {
