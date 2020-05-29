@@ -12,11 +12,11 @@ chai.use(dirtyChai);
 
   describe( '', () => {
 
-    before( ( done ) => {
+    before( done => {
       done();
     });
 
-    after( done => done() );
+    after( done => { done(); } );
 
     // Property Exists
 
