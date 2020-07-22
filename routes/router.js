@@ -5,5 +5,5 @@
 const h = require( './helper.route' );
 
 module.exports = ( app, h ) => {
-    require('./routes/account.router')(app);
+    require('./account.router')(app);
 };

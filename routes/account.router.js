@@ -1,5 +1,5 @@
-const auth = require('../../middleware/auth');
-const accountController = require('./../../controllers/account.controller');
+const auth = require('../middleware/auth');
+const accountController = require('./../controllers/account.controller');
 
 const accountRoutes = ( app, h ) => {
     /*
