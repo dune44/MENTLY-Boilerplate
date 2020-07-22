@@ -24,6 +24,6 @@ const limit = rateLimit({
 app.use( '/', limit ); // Setting limiter on specific route
 
 // Pull in routes
-require( './router' )( app );
+require( './../routes/router' )( app );
 
 module.exports = app;
