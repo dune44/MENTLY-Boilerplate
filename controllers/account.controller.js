@@ -511,7 +511,7 @@ const accountMethod = {
         });
         return result;
     },
-    validateEmail: ( email ) => validator.isEmail( email ),
+    validateEmail: email => validator.isEmail( email ),
     validatePassword: password => {
         if( password.length < 8 ) return false;
         else return true;
