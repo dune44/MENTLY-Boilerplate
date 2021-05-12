@@ -42,7 +42,7 @@
     "moment-json-parser": "^0.9.1",
     "mongodb": "^3.5.7",
     "mongoose": "^5.9.11",
-    "nodemailer": "^6.4.6",
+    "nodemailer": "^6.4.16",
     "qrcode": "1.4.4",
     "speakeasy": "2.0.0",
     "validator": "13.1.1"
