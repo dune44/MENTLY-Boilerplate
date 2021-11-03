@@ -45,7 +45,7 @@
     "nodemailer": "6.6.1",
     "qrcode": "1.4.4",
     "speakeasy": "2.0.0",
-    "validator": "13.6.0"
+    "validator": "13.7.0"
   },
   "devDependencies": {
     "chai": "4.3.4",
