@@ -38,7 +38,7 @@
     "express-rate-limit": "5.2.6",
     "helmet": "4.6.0",
     "jsonwebtoken": "8.5.1",
-    "moment": "2.29.1",
+    "moment": "2.29.2",
     "moment-json-parser": "0.9.1",
     "mongodb": "3.6.9",
     "mongoose": "5.12.13",
